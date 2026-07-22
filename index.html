@@ -665,15 +665,25 @@
     <div class="crest">⚽</div>
     KUYF
   </div>
-  <nav class="links">
-    <a href="#format">Format</a>
-    <a href="#structure">Structure</a>
-    <a href="#positions">Positions</a>
-    <a href="#scoring">Scoring</a>
-    <a href="#fees">Fees</a>
-    <a href="#timeline">Schedule</a>
-    <a href="#rules">Rules</a>
+  
+  <!-- Hamburger Toggle Button for Mobile -->
+  <button class="nav-toggle" aria-label="Toggle Navigation" onclick="toggleNav()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav class="links" id="navLinks">
+    <a href="#format" onclick="closeNav()">Format</a>
+    <a href="#structure" onclick="closeNav()">Structure</a>
+    <a href="#awards" onclick="closeNav()">Awards</a>
+    <a href="#positions" onclick="closeNav()">Positions</a>
+    <a href="#scoring" onclick="closeNav()">Scoring</a>
+    <a href="#fees" onclick="closeNav()">Fees</a>
+    <a href="#timeline" onclick="closeNav()">Schedule</a>
+    <a href="#rules" onclick="closeNav()">Rules</a>
   </nav>
+
   <a href="#register" class="btn nav-cta">Register</a>
 </header>
 
