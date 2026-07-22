@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KUYF Football Tournament — Kaji Bari United Youth Foundation</title>
+<meta name="description" content="KUYF Football Tournament — register your team and play for the trophy. Round-robin group stage, turf final, near the Bay of Bengal." />
+
+<!-- Google Fonts: Orbitron for the scoreboard/display voice, Rajdhani + Noto Sans Bengali for the body voice -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;900&family=Rajdhani:wght@400;500;600;600&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --night:        #050b12;
+    --pitch:        #06251a;
+    --pitch-line:   #0d4a30;
+    --neon-green:   #39ff8a;
+    --neon-cyan:    #29e6ff;
+    --gold:         #ffcf4d;
+    --alert:        #ff4d5e;
+    --ink:          #eaf6f2;
+    --ink-dim:      #9fb8b0;
+    --card-bg:      rgba(9, 24, 20, 0.62);
+    --border-glow:  rgba(56, 255, 138, 0.35);
+    --radius:       18px;
+    --maxw:         1180px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background: var(--night);
+    color: var(--ink);
+    font-family:'Rajdhani', 'Noto Sans Bengali', sans-serif;
+    font-size: 18px;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3, .display{
+    font-family:'Orbitron', sans-serif;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  ul{ list-style:none; }
+  img{ max-width:100%; display:block; }
+
+  ::selection{ background: var(--neon-green); color:#04140c; }
+
+  /* ---------- Ambient stadium-light background ---------- */
+  .field-grid{
+    position: fixed;
+    inset:0;
+    z-index:-2;
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(41,231,255,0.14), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 15% 110%, rgba(56,255,138,0.10), transparent 60%),
+      repeating-linear-gradient(180deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 60px),
+      linear-gradient(180deg, #050b12 0%, #06120e 40%, #050b12 100%);
+  }
+
+  .floodbeam{
+    position: fixed;
+    top:-20%;
+    width:260px; height:150%;
+    background: linear-gradient(180deg, rgba(56,255,138,0.16), transparent 60%);
+    filter: blur(6px);
+    transform: rotate(14deg);
+    z-index:-1;
+    animation: beamSway 9s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .floodbeam.b2{ left:65%; background:linear-gradient(180deg, rgba(41,231,255,0.14), transparent 60%); transform:rotate(-16deg); animation-delay:-4s; }
+  .floodbeam.b1{ left:-5%; }
+  @keyframes beamSway{
+    0%,100%{ opacity:.55; }
+    50%{ opacity:.9; }
+  }
+
+  /* ---------- Top nav ---------- */
+  header{
+    position: sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px clamp(18px, 4vw, 48px);
+    background: rgba(5,11,18,0.6);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(56,255,138,0.15);
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+    font-family:'Orbitron', sans-serif;
+    font-weight:600;
+    font-size: clamp(14px, 2.2vw, 18px);
+  }
+  .brand .crest{
+    width:36px; height:36px;
+    display:grid; place-items:center;
+    border-radius:50%;
+    border:2px solid var(--neon-green);
+    box-shadow: 0 0 10px var(--neon-green), inset 0 0 8px rgba(56,255,138,0.4);
+    font-size:16px;
+  }
+  nav.links{ display:flex; gap:clamp(10px,2vw,26px); font-size:15px; font-weight:600; }
+  nav.links a{
+    color: var(--ink-dim);
+    position:relative;
+    padding-bottom:4px;
+    transition: color .25s ease;
+  }
+  nav.links a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:2px;
+    background: var(--neon-green); box-shadow:0 0 8px var(--neon-green);
+    transition: width .25s ease;
+  }
+  nav.links a:hover{ color:var(--ink); }
+  nav.links a:hover::after{ width:100%; }
+  .nav-cta{
+    display:none;
+  }
+  @media(min-width:620px){
+    .nav-cta{ display:inline-block; }
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:'Orbitron', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding: 13px 26px;
+    border-radius: 999px;
+    cursor:pointer;
+    border:2px solid var(--neon-green);
+    color: #04140c;
+    background: var(--neon-green);
+    box-shadow: 0 0 12px rgba(56,255,138,0.55), 0 0 40px rgba(56,255,138,0.18);
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .btn:hover{
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 0 22px rgba(56,255,138,0.9), 0 0 60px rgba(56,255,138,0.35);
+  }
+  .btn:active{ transform: translateY(0) scale(0.99); }
+  .btn.ghost{
+    background: transparent;
+    color: var(--neon-cyan);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px rgba(41,231,255,0.35);
+  }
+  .btn.ghost:hover{ box-shadow: 0 0 22px rgba(41,231,255,0.6); }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    min-height: 92vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding: 120px 20px 80px;
+    overflow:hidden;
+    background-image:
+      linear-gradient(180deg, rgba(5,11,18,0.55) 0%, rgba(5,11,18,0.85) 65%, var(--night) 100%),
+      url('banner.png');
+    background-size: cover;
+    background-position: center 30%;
+  }
+  .kickoff-tag{
+    font-family:'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px rgba(41,231,255,0.8);
+    margin-bottom: 22px;
+  }
+  .hero h1{
+    font-size: clamp(2.1rem, 6.5vw, 4.6rem);
+    line-height:1.05;
+    font-weight:900;
+    color:#fff;
+    text-shadow:
+      0 0 6px rgba(255,255,255,0.6),
+      0 0 22px var(--neon-green),
+      0 0 46px rgba(56,255,138,0.6);
+    animation: flicker 6s ease-in-out infinite;
+  }
+  .hero h1 .sub-line{
+    display:block;
+    font-size: 0.34em;
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255,206,66,0.8), 0 0 26px rgba(255,206,66,0.4);
+    margin-top:14px;
+    letter-spacing:0.08em;
+  }
+  @keyframes flicker{
+    0%, 19%, 21%, 23%, 54%, 56%, 100%{ opacity:1; }
+    20%, 22%, 55%{ opacity:0.86; }
+  }
+  .hero p.tagline{
+    max-width: 640px;
+    margin: 26px auto 40px;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--ink-dim);
+    font-weight:500;
+  }
+  .hero .cta-row{
+    display:flex; gap:18px; flex-wrap:wrap; justify-content:center;
+  }
+  .hero-stats{
+    margin-top:64px;
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 22px;
+    max-width: 620px;
+    width:100%;
+  }
+  .hero-stats .stat{
+    text-align:center;
+    padding: 14px 6px;
+    border-top: 1px solid rgba(56,255,138,0.25);
+  }
+  .hero-stats .stat b{
+    display:block;
+    font-family:'Orbitron',sans-serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--neon-green);
+    text-shadow: 0 0 12px rgba(56,255,138,0.6);
+  }
+  .hero-stats .stat span{
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+
+  /* ---------- Section framing ---------- */
+  section{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 100px 24px;
+  }
+  .eyebrow{
+    font-family:'Orbitron', sans-serif;
+    font-size:12px;
+    letter-spacing:0.3em;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 8px rgba(41,231,255,0.6);
+    margin-bottom: 14px;
+  }
+  .section-title{
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    color:#fff;
+    margin-bottom: 16px;
+  }
+  .section-lead{
+    max-width: 680px;
+    color: var(--ink-dim);
+    font-size: 1.08rem;
+    margin-bottom: 50px;
+  }
+
+  /* ---------- Format / About cards ---------- */
+  .format-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+  }
+  .card{
+    background: var(--card-bg);
+    border: 1px solid var(--border-glow);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    position:relative;
+    overflow:hidden;
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  }
+  .card::before{
+    content:'';
+    position:absolute; inset:-1px;
+    border-radius: var(--radius);
+    padding:1px;
+    background: linear-gradient(135deg, var(--neon-green), transparent 40%, var(--neon-cyan));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity:0;
+    transition: opacity .3s ease;
+  }
+  .card:hover{
+    transform: translateY(-6px);
+    box-shadow: 0 12px 34px rgba(0,0,0,0.45), 0 0 24px rgba(56,255,138,0.18);
+  }
+  .card:hover::before{ opacity:1; }
+  .card .icon{
+    font-size: 28px;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 8px rgba(56,255,138,0.6));
+  }
+  .card h3{
+    font-size: 1.05rem;
+    color:#fff;
+    margin-bottom: 10px;
+    letter-spacing:0.02em;
+  }
+  .card p{ color: var(--ink-dim); font-size: 0.98rem; }
+  .card strong{ color: var(--neon-green); }
+
+  /* ---------- Positions: jersey badges ---------- */
+  .positions-wrap{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 20px;
+  }
+  .jersey{
+    position:relative;
+    aspect-ratio: 1 / 1.05;
+    border-radius: 16px;
+    background: linear-gradient(160deg, #0a2018, #061410);
+    border: 1px solid rgba(56,255,138,0.25);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:6px;
+    cursor:default;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .jersey:hover{
+    transform: translateY(-8px) rotate(-1deg);
+    border-color: var(--neon-green);
+    box-shadow: 0 0 26px rgba(56,255,138,0.5);
+  }
+  .jersey .letter{
+    font-family:'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    font-weight:900;
+    color: var(--neon-green);
+    text-shadow: 0 0 14px rgba(56,255,138,0.6);
+  }
+  .jersey.keeper .letter{
+    color: var(--gold);
+    text-shadow: 0 0 14px rgba(255,206,66,0.8);
+  }
+  .jersey.keeper{ border-color: rgba(255,206,66,0.3); }
+  .jersey.keeper:hover{ border-color: var(--gold); box-shadow: 0 0 26px rgba(255,206,66,0.5); }
+  .jersey small{
+    font-size: 11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color: var(--ink-dim);
+  }
+
+  .roster-note{
+    margin-top: 34px;
+    display:flex; flex-wrap:wrap; gap:16px;
+    align-items:center;
+    padding: 18px 22px;
+    border-radius: var(--radius);
+    background: rgba(41,231,255,0.06);
+    border: 1px dashed rgba(41,231,255,0.4);
+    color: var(--ink-dim);
+    font-size:0.95rem;
+  }
+  .roster-note b{ color:var(--neon-cyan); }
+
+  /* ---------- Fee tiers ---------- */
+  .fee-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+  .fee-card{
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 34px 30px;
+    border: 1px solid rgba(56,255,138,0.2);
+    text-align:center;
+    position:relative;
+  }
+  .fee-card.highlight{
+    border-color: var(--neon-green);
+    box-shadow: 0 0 30px rgba(56,255,138,0.25);
+  }
+  .fee-card .tag{
+    font-size:12px;
+    letter-spacing:0.2em;
+    color: var(--gold);
+    text-shadow:0 0 8px rgba(255,206,66,0.6);
+    margin-bottom:10px;
+  }
+  .fee-card .amount{
+    font-family:'Orbitron', sans-serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight:900;
+    color:#fff;
+    text-shadow: 0 0 16px rgba(56,255,138,0.5);
+  }
+  .fee-card .amount span{ font-size:0.4em; color:var(--ink-dim); }
+  .fee-card p{ color: var(--ink-dim); margin-top:10px; font-size:0.95rem; }
+
+  /* ---------- Timeline ---------- */
+  .timeline{
+    position:relative;
+    display:flex; flex-direction:column; gap:0;
+  }
+  .timeline::before{
+    content:'';
+    position:absolute; left:19px; top:8px; bottom:8px;
+    width:2px;
+    background: linear-gradient(180deg, var(--neon-green), var(--neon-cyan));
+    box-shadow: 0 0 10px rgba(56,255,138,0.5);
+  }
+  .t-item{
+    position:relative;
+    padding: 22px 0 22px 58px;
+  }
+  .t-item .dot{
+    position:absolute; left:11px; top:26px;
+    width:18px; height:18px;
+    border-radius:50%;
+    background: var(--night);
+    border: 2px solid var(--neon-green);
+    box-shadow: 0 0 12px rgba(56,255,138,0.6);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .t-item:hover .dot{
+    transform: scale(1.3);
+    box-shadow: 0 0 20px rgba(56,255,138,1);
+    background: var(--neon-green);
+  }
+  .t-item .date{
+    font-family:'Orbitron', sans-serif;
+    font-size:0.85rem;
+    color: var(--neon-cyan);
+    letter-spacing:0.05em;
+  }
+  .t-item h3{ color:#fff; font-size:1.15rem; margin-top:4px; }
+  .t-item p{ color:var(--ink-dim); font-size:0.95rem; margin-top:4px; }
+  .t-item.final .dot{ border-color: var(--gold); }
+  .t-item.final:hover .dot{ background:var(--gold); box-shadow:0 0 20px var(--gold); }
+  .t-item.final .date{ color: var(--gold); }
+
+  /* ---------- Rules ---------- */
+  .rules-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap:22px;
+  }
+  .rule-card{
+    padding: 26px;
+    border-radius: var(--radius);
+    background: rgba(255,66,94,0.05);
+    border:1px solid rgba(255,66,94,0.35);
+  }
+  .rule-card.ok{
+    background: rgba(56,255,138,0.05);
+    border-color: rgba(56,255,138,0.3);
+  }
+  .rule-card h3{
+    font-size:1.02rem;
+    color:#fff;
+    margin-bottom:10px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .rule-card p{ color:var(--ink-dim); font-size:0.95rem; }
+
+  /* ---------- Trophy / prize ---------- */
+  .trophy-wrap{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 26px;
+    text-align:center;
+  }
+  @media(min-width:620px){
+    .trophy-wrap{ grid-template-columns: 1fr 1fr; text-align:left; }
+  }
+  .trophy-badge{
+    width: 92px; height:92px;
+    margin: 0 auto 18px;
+    border-radius:50%;
+    display:grid; place-items:center;
+    font-size:40px;
+    background: radial-gradient(circle, rgba(255,206,66,0.18), transparent 60%);
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 24px rgba(255,206,66,0.5);
+    animation: spinGlow 6s linear infinite;
+  }
+  @media(min-width:620px){ .trophy-badge{ margin: 0 0 18px; } }
+  @keyframes spinGlow{
+    0%{ box-shadow: 0 0 18px rgba(255,206,66,0.4); }
+    50%{ box-shadow: 0 0 34px rgba(255,206,66,0.8); }
+    100%{ box-shadow: 0 0 18px rgba(255,206,66,0.4); }
+  }
+
+  /* ---------- Tournament Structure (top-to-bottom flow) ---------- */
+  .structure-flow{
+    display:flex; flex-direction:column; align-items:center; gap:0;
+  }
+  .structure-stage{
+    width:100%;
+    max-width:760px;
+    background: var(--card-bg);
+    border:1px solid var(--border-glow);
+    border-radius: var(--radius);
+    padding: 32px 30px;
+    text-align:center;
+  }
+  .structure-stage h3{ color:#fff; font-size:1.4rem; margin-bottom:12px; }
+  .structure-stage p{ color:var(--ink-dim); font-size:1rem; }
+  .structure-teams{
+    display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:20px;
+  }
+  .structure-team-chip{
+    padding: 10px 20px;
+    border-radius:999px;
+    border:1px solid rgba(56,255,138,0.4);
+    font-family:'Orbitron', sans-serif;
+    font-size:0.82rem;
+    color: var(--neon-green);
+    background: rgba(56,255,138,0.07);
+    box-shadow: 0 0 10px rgba(56,255,138,0.15);
+  }
+  .structure-team-chip.top{
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(255,206,66,0.08);
+    box-shadow: 0 0 10px rgba(255,206,66,0.2);
+  }
+  .structure-arrow{
+    font-size: 2.2rem;
+    line-height:1;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 16px rgba(41,231,255,0.8);
+    margin: 18px 0;
+    animation: arrowPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes arrowPulse{
+    0%,100%{ opacity:.45; transform:translateY(0); }
+    50%{ opacity:1; transform:translateY(8px); }
+  }
+  .structure-trophy-wrap{
+    display:flex; flex-direction:column; align-items:center;
+    margin: 6px 0;
+  }
+  .structure-trophy{
+    width:150px; height:150px;
+    border-radius:50%;
+    display:grid; place-items:center;
+    font-size:68px;
+    background: radial-gradient(circle, rgba(255,206,66,0.24), transparent 65%);
+    border: 3px solid var(--gold);
+    box-shadow: 0 0 44px rgba(255,206,66,0.65), 0 0 90px rgba(255,206,66,0.3);
+    animation: spinGlow 6s linear infinite;
+  }
+  .structure-trophy-label{
+    margin-top:14px;
+    font-family:'Orbitron', sans-serif;
+    letter-spacing:0.25em;
+    font-size:0.8rem;
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255,206,66,0.7);
+  }
+  .structure-final{
+    border-color: var(--gold);
+    box-shadow: 0 0 34px rgba(255,206,66,0.3);
+  }
+  .structure-final h3{ color: var(--gold); }
+  .structure-meta{
+    margin-top: 46px;
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:20px;
+    width:100%;
+    max-width:900px;
+  }
+
+  /* ---------- Scoring & Discipline cards ---------- */
+  .scoring-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+  }
+  .card.card-red{ border-color: rgba(255,66,94,0.4); }
+  .card.card-red .icon{ filter: drop-shadow(0 0 8px rgba(255,66,94,0.6)); }
+  .card.card-yellow{ border-color: rgba(255,206,66,0.4); }
+  .card.card-yellow .icon{ filter: drop-shadow(0 0 8px rgba(255,206,66,0.6)); }
+
+  /* ---------- Register CTA banner ---------- */
+  .register-banner{
+    max-width: none;
+    margin: 0;
+    padding: 90px 24px;
+    text-align:center;
+    background:
+      radial-gradient(ellipse 60% 100% at 50% 0%, rgba(56,255,138,0.12), transparent 60%),
+      var(--pitch);
+    border-top: 1px solid rgba(56,255,138,0.2);
+    border-bottom: 1px solid rgba(56,255,138,0.2);
+  }
+  .register-banner h2{
+    font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+    color:#fff;
+    margin-bottom:14px;
+    text-shadow: 0 0 18px rgba(56,255,138,0.5);
+  }
+  .register-banner p{ color: var(--ink-dim); max-width:520px; margin: 0 auto 34px; }
+
+  /* ---------- Footer ---------- */
+  footer{
+    padding: 46px 24px 60px;
+    text-align:center;
+    color: var(--ink-dim);
+    font-size:0.9rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  footer .brand-line{
+    font-family:'Orbitron', sans-serif;
+    color:#fff;
+    letter-spacing:0.1em;
+    margin-bottom:10px;
+    font-size:0.95rem;
+  }
+
+  /* ---------- Floating register button ---------- */
+  .floating-cta{
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 60;
+    animation: floatBob 3s ease-in-out infinite;
+  }
+  @keyframes floatBob{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-8px); }
+  }
+  @media(max-width:600px){
+    .floating-cta{ right:14px; bottom:14px; }
+    .floating-cta .btn span.full{ display:none; }
+  }
+
+  /* ---------- Reveal-on-scroll ---------- */
+  .reveal{
+    opacity:0;
+    transform: translateY(24px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .reveal.in{ opacity:1; transform:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="field-grid"></div>
+<div class="floodbeam b1"></div>
+<div class="floodbeam b2"></div>
+
+<header>
+  <div class="brand">
+    <div class="crest">⚽</div>
+    KUYF
+  </div>
+  <nav class="links">
+    <a href="#format">Format</a>
+    <a href="#structure">Structure</a>
+    <a href="#positions">Positions</a>
+    <a href="#scoring">Scoring</a>
+    <a href="#fees">Fees</a>
+    <a href="#timeline">Schedule</a>
+    <a href="#rules">Rules</a>
+  </nav>
+  <a href="#register" class="btn nav-cta">Register</a>
+</header>
+
+<section class="hero">
+  <div class="kickoff-tag">KAJI BARI UNITED YOUTH FOUNDATION PRESENTS</div>
+  <h1>
+    KUYF FOOTBALL TOURNAMENT
+    <span class="sub-line">Your Ground. Your Glory.</span>
+  </h1>
+  <p class="tagline">
+    গ্রুপ পর্বে রাউন্ড-রবিন লিগ, আলোর নিচে টার্ফ ফাইনাল, আর একটাই ট্রফি।
+    এখনই রেজিস্ট্রেশন করো আর মাঠে নিজের জায়গা করে নাও।
+  </p>
+  <div class="cta-row">
+    <a href="#register" class="btn">⚡ Register to Play</a>
+    <a href="#structure" class="btn ghost">See the Structure</a>
+  </div>
+
+  <div class="hero-stats reveal">
+    <div class="stat"><b>5+1</b><span>খেলোয়াড় প্রতি দলে (অতিরিক্তসহ)</span></div>
+    <div class="stat"><b>40</b><span>মিনিটের ম্যাচ (২০+২০)</span></div>
+    <div class="stat"><b>6</b><span>গ্রুপ পর্বের ম্যাচ</span></div>
+    <div class="stat"><b>1</b><span>টার্ফ ফাইনাল</span></div>
+  </div>
+</section>
+
+<section id="format">
+  <div class="eyebrow">The Format</div>
+  <h2 class="section-title reveal">Every Team. Every Team. One Final.</h2>
+  <p class="section-lead reveal">
+    একটি সহজ ও প্রতিযোগিতামূলক লিগ কাঠামো — প্রতিটি নিবন্ধিত দল একে অপরের বিপক্ষে খেলবে,
+    আর শুধু সবচেয়ে ভালো দুটি দল ট্রফির জন্য ফাইনালে ওঠার সুযোগ পাবে।
+  </p>
+  <div class="format-grid">
+    <div class="card reveal">
+      <div class="icon">🔁</div>
+      <h3>Round-Robin League</h3>
+      <p>গ্রুপ পর্বে প্রতিটি দল <strong>প্রতিটি প্রতিপক্ষ দলের</strong> বিপক্ষে একবার করে খেলবে — মোট <strong>৬টি গ্রুপ ম্যাচ</strong>। কোনো শর্টকাট নেই, মাঠের ফলাফলেই জায়গা অর্জন করতে হবে।</p>
+    </div>
+    <div class="card reveal">
+      <div class="icon">⏱️</div>
+      <h3>Match Duration</h3>
+      <p>গ্রুপ পর্বের প্রতিটি ম্যাচ হবে <strong>২০+২০ = ৪০ মিনিটের</strong>, দুই হাফে বিভক্ত।</p>
+    </div>
+    <div class="card reveal">
+      <div class="icon">🏆</div>
+      <h3>Turf Final</h3>
+      <p>পয়েন্ট টেবিলের <strong>শীর্ষ ২টি দল</strong> ফাইনালে মুখোমুখি হবে, বাজেট অনুযায়ী টার্ফ মাঠে খেলা হবে।</p>
+    </div>
+    <div class="card reveal">
+      <div class="icon">🌊</div>
+      <h3>Home Ground</h3>
+      <p>ম্যাচগুলো মূলত <strong>বে অফ বেঙ্গল ড্যাম</strong>-এর পাশের মাঠে অনুষ্ঠিত হবে — আমাদের নিজস্ব মাঠ, নিজস্ব দর্শক।</p>
+    </div>
+    <div class="card reveal">
+      <div class="icon">📝</div>
+      <h3>Simple Sign-Up</h3>
+      <p>রেজিস্টার বাটনে ক্লিক করে ফর্ম পূরণ করো — তুমি ড্রাফটের জন্য প্লেয়ার পুলে যুক্ত হয়ে যাবে।</p>
+    </div>
+  </div>
+</section>
+
+<section id="structure">
+  <div class="eyebrow">Tournament Structure</div>
+  <h2 class="section-title reveal">Groups to Glory</h2>
+  <p class="section-lead reveal">
+    টুর্নামেন্ট কীভাবে গ্রুপ পর্ব থেকে ট্রফি পর্যন্ত এগোবে, তার সম্পূর্ণ ছবি — ওপর থেকে নিচ পর্যন্ত।
+  </p>
+  <div class="structure-flow">
+
+    <div class="structure-stage reveal">
+      <h3>Group Stage</h3>
+      <p>৪ অথবা ৫টি দল একই গ্রুপে রাউন্ড-রবিন পদ্ধতিতে একে অপরের বিপক্ষে খেলবে।</p>
+      <div class="structure-teams">
+        <span class="structure-team-chip">Team 1</span>
+        <span class="structure-team-chip">Team 2</span>
+        <span class="structure-team-chip">Team 3</span>
+        <span class="structure-team-chip">Team 4</span>
+        <span class="structure-team-chip">Team 5*</span>
+      </div>
+    </div>
+
+    <div class="structure-arrow reveal">⬇</div>
+
+    <div class="structure-stage reveal">
+      <h3>Top Two Teams</h3>
+      <p>পয়েন্ট টেবিলের শীর্ষে থাকা দুটি দল গ্রুপ পর্ব থেকে ফাইনালে উত্তীর্ণ হবে।</p>
+      <div class="structure-teams">
+        <span class="structure-team-chip top">🥇 Group Winner</span>
+        <span class="structure-team-chip top">🥈 Runner-Up</span>
+      </div>
+    </div>
+
+    <div class="structure-arrow reveal">⬇</div>
+
+    <div class="structure-trophy-wrap reveal">
+      <div class="structure-trophy">🏆</div>
+      <div class="structure-trophy-label">THE FINAL</div>
+    </div>
+
+    <div class="structure-arrow reveal">⬇</div>
+
+    <div class="structure-stage structure-final reveal">
+      <h3>Champion</h3>
+      <p>ফাইনাল জিতে যে দল চ্যাম্পিয়ন হবে, তারাই তুলবে KUYF-এর ট্রফি।</p>
+    </div>
+
+  </div>
+</section>
+
+<section id="positions">
+  <div class="eyebrow">Squad Composition</div>
+  <h2 class="section-title reveal">5 On the Pitch. 1 Extra, Strictly.</h2>
+  <p class="section-lead reveal">
+    প্রতিটি দলে থাকবে ৫ জন মূল খেলোয়াড় এবং ১ জন অতিরিক্ত খেলোয়াড় (বাধ্যতামূলক) —
+    অর্থাৎ ম্যাচডে-র জন্য মোট ৬ জনের একটি পূর্ণাঙ্গ স্কোয়াড।
+  </p>
+  <div class="positions-wrap">
+    <div class="jersey reveal"><span class="letter">A</span><small>Category A</small></div>
+    <div class="jersey reveal"><span class="letter">B</span><small>Category B</small></div>
+    <div class="jersey reveal"><span class="letter">C</span><small>Category C</small></div>
+    <div class="jersey reveal"><span class="letter">D</span><small>Category D</small></div>
+    <div class="jersey keeper reveal"><span class="letter">G</span><small>Goalkeeper</small></div>
+    <div class="jersey reveal"><span class="letter">E</span><small>Extra (Sub)</small></div>
+  </div>
+  <div class="roster-note reveal">
+    <span>⭐</span>
+    <span><b>৫ জন মূল খেলোয়াড় + ১ জন অতিরিক্ত (বাধ্যতামূলক)</b> — প্রতি দলে মোট ৬ জন। ড্রাফটের আগে সব দল মিলিয়ে প্রায় <b>৩০ জন খেলোয়াড়</b> নিবন্ধন করবে বলে আশা করা হচ্ছে।</span>
+  </div>
+</section>
+
+<section id="fees">
+  <div class="eyebrow">Registration Fee</div>
+  <h2 class="section-title reveal">Team Fee Scales With Turnout</h2>
+  <p class="section-lead reveal">
+    The per-team fee depends on how many teams ultimately register — more teams, lower cost per team.
+  </p>
+  <div class="fee-grid">
+    <div class="fee-card highlight reveal">
+      <div class="tag">IF 5 TEAMS ENROLL</div>
+      <div class="amount">৳800 <span>/ team</span></div>
+      <p>The full-turnout rate — five teams sharing the cost.</p>
+    </div>
+    <div class="fee-card reveal">
+      <div class="tag">IF 4 TEAMS ENROLL</div>
+      <div class="amount">৳1000 <span>/ team</span></div>
+      <p>If only four teams register, the per-team share rises accordingly.</p>
+    </div>
+  </div>
+</section>
+
+<section id="timeline">
+  <div class="eyebrow">Road to the Final</div>
+  <h2 class="section-title reveal">Tournament Schedule</h2>
+  <p class="section-lead reveal">Mark your calendar — every stage happens on schedule.</p>
+  <div class="timeline">
+    <div class="t-item reveal">
+      <div class="dot"></div>
+      <div class="date">23 · 06 · 2026</div>
+      <h3>Player Name Collection</h3>
+      <p>Register your name to enter the player pool.</p>
+    </div>
+    <div class="t-item reveal">
+      <div class="dot"></div>
+      <div class="date">26 · 06 · 2026</div>
+      <h3>Player Draft</h3>
+      <p>Registered players are drafted into balanced teams.</p>
+    </div>
+    <div class="t-item reveal">
+      <div class="dot"></div>
+      <div class="date">28 · 06 · 2026</div>
+      <h3>Team Registration</h3>
+      <p>Teams are finalized and officially registered for the league.</p>
+    </div>
+    <div class="t-item reveal">
+      <div class="dot"></div>
+      <div class="date">31 · 06 · 2026</div>
+      <h3>Match Day</h3>
+      <p>The round-robin league kicks off — every team faces every team.</p>
+    </div>
+    <div class="t-item final reveal">
+      <div class="dot"></div>
+      <div class="date">06 · 08 · 2026</div>
+      <h3>The Final</h3>
+      <p>Top 2 teams meet on the turf to decide the champion.</p>
+    </div>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="eyebrow">Jersey & Kit Rules</div>
+  <h2 class="section-title reveal">Kit Up Fair, Kit Up Right</h2>
+  <p class="section-lead reveal">Every team funds and sources its own kit — within these boundaries.</p>
+  <div class="rules-grid">
+    <div class="rule-card reveal">
+      <h3>🚫 No Outside Jersey Rentals</h3>
+      <p>Teams cannot rent or borrow jerseys from anyone outside Kaji Bari. Your kit is your own team's responsibility and budget.</p>
+    </div>
+    <div class="rule-card ok reveal">
+      <h3>✅ Generic Country/League Kits Allowed</h3>
+      <p>Teams may wear identical generic country or league-style jerseys — as long as they're genuinely the same kit, not just similar.</p>
+    </div>
+    <div class="rule-card reveal">
+      <h3>🎨 No Color-Only Matching</h3>
+      <p>Simply matching jersey colors without the same actual kit does not satisfy the uniform requirement.</p>
+    </div>
+    <div class="rule-card ok reveal">
+      <h3>👖 Shorts or Long Trousers Required</h3>
+      <p>All players must wear proper shorts or long trousers on matchday. No exceptions.</p>
+    </div>
+  </div>
+</section>
+
+<section id="prizes">
+  <div class="eyebrow">On the Line</div>
+  <h2 class="section-title reveal">Champions & Runners-Up</h2>
+  <div class="trophy-wrap">
+    <div class="card reveal">
+      <div class="trophy-badge">🏆</div>
+      <h3>Champion</h3>
+      <p>Trophy and official recognition from Kaji Bari United Youth Foundation.</p>
+    </div>
+    <div class="card reveal">
+      <div class="trophy-badge" style="border-color:var(--neon-cyan); box-shadow:0 0 24px rgba(41,231,255,0.5);">🥈</div>
+      <h3>Runner-Up</h3>
+      <p>Trophy and recognition from KUYF for the second-place finishers.</p>
+    </div>
+  </div>
+</section>
+
+<section class="register-banner" id="register">
+  <h2>Ready to Play?</h2>
+  <p>Fill out the registration form to enter the player pool ahead of the draft. Spots fill fast.</p>
+  <div class="cta-row" style="justify-content:center; display:flex;">
+    <!-- TODO: replace "#" with your Google Form link -->
+    <a href="#" class="btn" target="_blank" rel="noopener">⚡ Register Now</a>
+  </div>
+</section>
+
+<footer>
+  <div class="brand-line">KUYF — KAJI BARI UNITED YOUTH FOUNDATION</div>
+  <div>Football Tournament 2026 · Bay of Bengal Dam Ground</div>
+</footer>
+
+<a href="#register" class="floating-cta btn" target="_self">
+  ⚡ <span class="full">Register</span>
+</a>
+
+<script>
+  // Reveal-on-scroll for cards, timeline items, jerseys, etc.
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Header shadow on scroll for depth
+  const header = document.querySelector('header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 20) {
+      header.style.boxShadow = '0 6px 24px rgba(0,0,0,0.35)';
+    } else {
+      header.style.boxShadow = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>
