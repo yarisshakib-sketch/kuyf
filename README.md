@@ -2,7 +2,7 @@
 
 Official landing page for the **Kaji Bari United Youth Foundation (KUYF) Football Tournament** — built to get players excited and signed up.
 
-🔗 **Live site:** [https://yarisshakib-sketch.github.io/football.kuyf/](https://yarisshakib-sketch.github.io/football.kuyf/)
+🔗 **Live site:** [https://yarisshakib-sketch.github.io/football.kuyf/](https://yarisshakib-sketch.github.io/kuyf)
 
 ## About the Tournament
 
