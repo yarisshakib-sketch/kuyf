@@ -1037,10 +1037,37 @@
   </div>
 </section>
   
-<section id="Fixture">
-  <div class="eyebrow reveal">Fixture & Schedule</div>
-  <h2 class="section-title reveal">Tournament Fixture & Schedule</h2>
-  <p class="section-lead reveal">Group matches and the ultimate final showdown for the championship.</p>
+<!-- Live Point Standings Section -->
+<section id="standings" style="padding: 40px 20px; max-width: 900px; margin: 0 auto;">
+  <div class="eyebrow" style="text-align: center;">Live Standings</div>
+  <h2 style="color: var(--gold); text-align: center; font-family: 'Orbitron', sans-serif; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);">Tournament Point Table</h2>
+  <div style="overflow-x: auto;">
+    <table id="standings-table" style="width: 100%; border-collapse: collapse; background: var(--card-bg); color: #fff; text-align: center; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glow); box-shadow: 0 0 15px rgba(41,231,255,0.15);">
+      <thead>
+        <tr style="background: rgba(56, 255, 138, 0.1); color: var(--neon-green); font-family: 'Orbitron', sans-serif;">
+          <th style="padding: 14px; border-bottom: 1px solid var(--border-glow);">Pos</th>
+          <th style="padding: 14px; text-align: left; border-bottom: 1px solid var(--border-glow);">Team</th>
+          <th style="padding: 14px; border-bottom: 1px solid var(--border-glow);">MP</th>
+          <th style="padding: 14px; border-bottom: 1px solid var(--border-glow);">W</th>
+          <th style="padding: 14px; border-bottom: 1px solid var(--border-glow);">D</th>
+          <th style="padding: 14px; border-bottom: 1px solid var(--border-glow);">L</th>
+          <th style="padding: 14px; border-bottom: 1px solid var(--border-glow);">GF</th>
+          <th style="padding: 14px; border-bottom: 1px solid var(--border-glow);">GA</th>
+          <th style="padding: 14px; border-bottom: 1px solid var(--border-glow); color: var(--gold);">Pts</th>
+        </tr>
+      </thead>
+      <tbody id="standings-body">
+        <!-- Dynamically injected via JavaScript -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Fixture & Schedule Section -->
+<section id="Fixture" style="padding: 40px 20px; max-width: 900px; margin: 0 auto;">
+  <div class="eyebrow reveal" style="text-align: center;">Fixture & Schedule</div>
+  <h2 class="section-title reveal" style="text-align: center;">Tournament Fixture & Schedule</h2>
+  <p class="section-lead reveal" style="text-align: center; margin-bottom: 30px;">Group matches and the ultimate final showdown for the championship.</p>
 
  <div class="reveal" style="margin-bottom: 40px; overflow-x: auto;">
   <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.3rem; color: #fff; margin-bottom: 16px; text-align: center;">Group Matches ("সমুদ্রপাড়")</h3>
@@ -1053,27 +1080,9 @@
       </tr>
     </thead>
     <tbody style="font-size: 0.95rem;">
-      <!-- Match 01: Legend United FC vs United Kings -->
-        <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1);">
+      <!-- Match 01: Titans FC vs Legend United FC -->
+      <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1);">
         <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">01</td>
-        <td style="padding: 16px 20px; vertical-align: middle;">
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/mCBVwyFx/Legend.png" alt="Legend" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">Legend United FC</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/wrbx2Pjh/photo-2026-07-26-23-47-02.jpg" alt="Royal" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">United Kings</span>
-            </div>
-          </div>
-        </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">07 August, Friday 10.00 am</td>
-      </tr>
-
-      <!-- Match 02: Titans vs Pioneers -->
-      <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1); background: rgba(255, 255, 255, 0.01);">
-        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">02</td>
         <td style="padding: 16px 20px; vertical-align: middle;">
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -1081,35 +1090,35 @@
               <span style="font-weight: 500; color: #fff;">Titans FC</span>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/Wv21RS9r/Pioneers.png" alt="Pioneers" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">Pioneers FC</span>
-            </div>
-          </div>
-        </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);"07 >07 August, Friday 11.00 am</td>
-      </tr>
-
-      <!-- Match 03: Royal United vs No Mercy! -->
-       <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1);">
-        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">03</td>
-        <td style="padding: 16px 20px; vertical-align: middle;">
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/wrbx2Pjh/photo-2026-07-26-23-47-02.jpg" alt="Royal" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">United Kings</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/MxKh8qst/nomercy.png" alt="nomercy" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">No Mercy!</span>
+              <img src="https://i.ibb.co.com/mCBVwyFx/Legend.png" alt="Legend" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">Legend United FC</span>
             </div>
           </div>
         </td>
         <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">07 August, Friday 3.00 pm</td>
       </tr>
 
-      <!-- Match 04: Pioneers vs E* (Legend United FC) -->
+      <!-- Match 02: No Mercy! vs United Kings -->
       <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1); background: rgba(255, 255, 255, 0.01);">
-        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">04</td>
+        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">02</td>
+        <td style="padding: 16px 20px; vertical-align: middle;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="https://i.ibb.co.com/MxKh8qst/nomercy.png" alt="nomercy" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">No Mercy!</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="https://i.ibb.co.com/wrbx2Pjh/photo-2026-07-26-23-47-02.jpg" alt="Royal" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">United Kings</span>
+            </div>
+          </div>
+        </td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">07 August, Friday 3.45 pm</td>
+      </tr>
+
+      <!-- Match 03: Pioneers FC vs Titans FC -->
+       <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1);">
+        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">03</td>
         <td style="padding: 16px 20px; vertical-align: middle;">
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -1117,15 +1126,33 @@
               <span style="font-weight: 500; color: #fff;">Pioneers FC</span>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/mCBVwyFx/Legend.png" alt="Legend" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">Legend United FC</span>
+              <img src="https://i.ibb.co.com/cXypcCY9/Titans.png" alt="Titans" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">Titans FC</span>
             </div>
           </div>
         </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">07 August, Friday 4.00 pm</td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">07 August, Friday 5.00 pm</td>
       </tr>
 
-      <!-- Match 05: No Mercy! vs Titans -->
+      <!-- Match 04: Legend United FC vs United Kings -->
+      <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1); background: rgba(255, 255, 255, 0.01);">
+        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">04</td>
+        <td style="padding: 16px 20px; vertical-align: middle;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="https://i.ibb.co.com/mCBVwyFx/Legend.png" alt="Legend" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">Legend United FC</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="https://i.ibb.co.com/wrbx2Pjh/photo-2026-07-26-23-47-02.jpg" alt="Royal" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">United Kings</span>
+            </div>
+          </div>
+        </td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">14 August, Wednesday 10.00 am</td>
+      </tr>
+
+      <!-- Match 05: No Mercy! vs Pioneers FC -->
       <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1);">
         <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">05</td>
         <td style="padding: 16px 20px; vertical-align: middle;">
@@ -1135,15 +1162,15 @@
               <span style="font-weight: 500; color: #fff;">No Mercy!</span>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/cXypcCY9/Titans.png" alt="Titans" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">Titans FC</span>
+              <img src="https://i.ibb.co.com/Wv21RS9r/Pioneers.png" alt="Pioneers" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">Pioneers FC</span>
             </div>
           </div>
         </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">14 August, Wednesday 10.00 am</td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">14 August, Wednesday 11.00 am</td>
       </tr>
 
-      <!-- Match 06: Royal United vs Titans -->
+      <!-- Match 06: United Kings vs Titans FC -->
       <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1); background: rgba(255, 255, 255, 0.01);">
         <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">06</td>
         <td style="padding: 16px 20px; vertical-align: middle;">
@@ -1158,30 +1185,48 @@
             </div>
           </div>
         </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">14 August, Wednesday 11.00 am</td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">14 August, Wednesday 3.00 pm</td>
       </tr>
 
-      <!-- Match 07: No Mercy! vs Pioneers -->
+      <!-- Match 07: Legend United FC vs No Mercy! -->
       <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1);">
         <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">07</td>
         <td style="padding: 16px 20px; vertical-align: middle;">
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="https://i.ibb.co.com/mCBVwyFx/Legend.png" alt="Legend" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">Legend United FC</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
               <img src="https://i.ibb.co.com/MxKh8qst/nomercy.png" alt="nomercy" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
               <span style="font-weight: 500; color: #fff;">No Mercy!</span>
             </div>
+          </div>
+        </td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">14 August, Wednesday 4.00 pm</td>
+      </tr>
+
+      <!-- Match 08: Pioneers FC vs United Kings -->
+      <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1); background: rgba(255, 255, 255, 0.01);">
+        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">08</td>
+        <td style="padding: 16px 20px; vertical-align: middle;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <img src="https://i.ibb.co.com/Wv21RS9r/Pioneers.png" alt="Pioneers" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
               <span style="font-weight: 500; color: #fff;">Pioneers FC</span>
             </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="https://i.ibb.co.com/wrbx2Pjh/photo-2026-07-26-23-47-02.jpg" alt="Royal" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">United Kings</span>
+            </div>
           </div>
         </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">14 August, Wednesday 3.00 pm</td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">21 August, Thursday 10.00 am</td>
       </tr>
 
-      <!-- Match 08: Titans vs E* (Legend United FC) -->
-      <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1); background: rgba(255, 255, 255, 0.01);">
-        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">08</td>
+      <!-- Match 09: Titans FC vs No Mercy! -->
+      <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1);">
+        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">09</td>
         <td style="padding: 16px 20px; vertical-align: middle;">
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -1189,22 +1234,22 @@
               <span style="font-weight: 500; color: #fff;">Titans FC</span>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/mCBVwyFx/Legend.png" alt="Legend" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">Legend United FC</span>
+              <img src="https://i.ibb.co.com/MxKh8qst/nomercy.png" alt="nomercy" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">No Mercy!</span>
             </div>
           </div>
         </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">14 August, Wednesday 4.00 pm</td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">21 August, Thursday 11.00 am</td>
       </tr>
 
-      <!-- Match 09: Royal United vs Pioneers -->
-      <tr style="border-bottom: 1px solid rgba(56, 255, 138, 0.1);">
-        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">09</td>
+      <!-- Match 10: Legend United FC vs Pioneers FC -->
+      <tr style="background: rgba(255, 255, 255, 0.01);">
+        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">10</td>
         <td style="padding: 16px 20px; vertical-align: middle;">
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/wrbx2Pjh/photo-2026-07-26-23-47-02.jpg" alt="Royal" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">United Kings</span>
+              <img src="https://i.ibb.co.com/mCBVwyFx/Legend.png" alt="Legend" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
+              <span style="font-weight: 500; color: #fff;">Legend United FC</span>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
               <img src="https://i.ibb.co.com/Wv21RS9r/Pioneers.png" alt="Pioneers" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
@@ -1212,31 +1257,13 @@
             </div>
           </div>
         </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">21 August, Thursday 10.00 am</td>
-      </tr>
-
-      <!-- Match 10: No Mercy! vs E* (Legend United FC) -->
-      <tr style="background: rgba(255, 255, 255, 0.01);">
-        <td style="padding: 16px 20px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; vertical-align: middle;">10</td>
-        <td style="padding: 16px 20px; vertical-align: middle;">
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/MxKh8qst/nomercy.png" alt="nomercy" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">No Mercy!</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="https://i.ibb.co.com/mCBVwyFx/Legend.png" alt="Legend" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.style.display='none'">
-              <span style="font-weight: 500; color: #fff;">Legend United FC</span>
-            </div>
-          </div>
-        </td>
-        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">21 August, Thursday 11.00 am</td>
+        <td style="padding: 16px 20px; color: var(--ink-dim); vertical-align: middle; border-left: 1px solid rgba(255, 255, 255, 0.1);">21 August, Thursday 3.00 pm</td>
       </tr>
     </tbody>
   </table>
 </div>
 
-  <!-- The Final Section styled with a table matching the group matches and yellow card theme -->
+  <!-- The Final Section -->
   <div class="reveal" style="margin-bottom: 40px; overflow-x: auto;">
     <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.3rem; color: var(--gold); margin-bottom: 16px; text-align: center;">The Final</h3>
     <p style="color: var(--ink-dim); text-align: center; margin-bottom: 16px;">পয়েন্ট টেবিলের শীর্ষে থাকা দুটি দল গ্রুপ পর্ব থেকে ফাইনালে মুখোমুখি হবে।</p>
@@ -1275,6 +1302,57 @@
     </table>
   </div>
 </section>
+
+<!-- JavaScript to auto-fetch standings.json, sort, and render table -->
+<script>
+async function loadStandings() {
+  try {
+    const response = await fetch('assets/data/standings.json');
+    let teams = await response.json();
+
+    // Sorting rule: Points (Pts) desc, then Goal Difference (GF - GA) desc, then Goals For (GF) desc
+    teams.sort((a, b) => {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      let gdB = (b.gf || 0) - (b.ga || 0);
+      let gdA = (a.gf || 0) - (a.ga || 0);
+      if (gdB !== gdA) return gdB - gdA;
+      return (b.gf || 0) - (a.gf || 0);
+    });
+
+    const tbody = document.getElementById('standings-body');
+    tbody.innerHTML = '';
+
+    teams.forEach((team, index) => {
+      let rank = index + 1;
+      let badge = '';
+      if (rank === 1) badge = '👑 ';
+
+      const row = document.createElement('tr');
+      row.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      if (rank <= 2) {
+        row.style.background = 'rgba(255, 215, 0, 0.04)'; // Highlight top 2 qualification slots for final
+      }
+
+      row.innerHTML = `
+        <td style="padding: 12px; font-weight: bold; color: var(--gold);">${badge}${rank}</td>
+        <td style="padding: 12px; text-align: left; font-weight: 500; color: #fff;">${team.name}</td>
+        <td style="padding: 12px;">${team.mp || 0}</td>
+        <td style="padding: 12px; color: var(--neon-green);">${team.w || 0}</td>
+        <td style="padding: 12px; color: var(--neon-cyan);">${team.d || 0}</td>
+        <td style="padding: 12px; color: #ff6b6b;">${team.l || 0}</td>
+        <td style="padding: 12px;">${team.gf || 0}</td>
+        <td style="padding: 12px;">${team.ga || 0}</td>
+        <td style="padding: 12px; font-weight: bold; color: var(--gold);">${team.pts || 0}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Error loading standings data:', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadStandings);
+</script>
 <section id="timeline">
   <div class="eyebrow">Road to the Final</div>
   <h2 class="section-title reveal">Tournament Schedule</h2>
