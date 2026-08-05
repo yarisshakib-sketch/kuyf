@@ -1307,7 +1307,7 @@
 <script>
 async function loadStandings() {
   try {
-    const response = await fetch('assets/data/standings.json');
+    const response = await fetch('standings.json');
     let teams = await response.json();
 
     // Sorting rule: Points (Pts) desc, then Goal Difference (GF - GA) desc, then Goals For (GF) desc
