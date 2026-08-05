@@ -1303,14 +1303,16 @@
   </div>
 </section>
 
-<!-- JavaScript to auto-fetch standings.json, sort, and render table -->
 <script>
 async function loadStandings() {
   try {
-    const response = await fetch('./standings.json');
+    // Adding Date.now() completely bypasses browser caching so changes show instantly
+    const response = await fetch('./standings.json?v=' + Date.now());
+    if (!response.ok) throw new Error('Failed to load standings.json');
+    
     let teams = await response.json();
 
-    // Sorting rule: Points (Pts) desc, then Goal Difference (GF - GA) desc, then Goals For (GF) desc
+    // Sorting rule: Points desc, Goal Difference desc, Goals For desc
     teams.sort((a, b) => {
       if (b.pts !== a.pts) return b.pts - a.pts;
       let gdB = (b.gf || 0) - (b.ga || 0);
@@ -1320,17 +1322,17 @@ async function loadStandings() {
     });
 
     const tbody = document.getElementById('standings-body');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     teams.forEach((team, index) => {
       let rank = index + 1;
-      let badge = '';
-      if (rank === 1) badge = '👑 ';
+      let badge = (rank === 1) ? '👑 ' : '';
 
       const row = document.createElement('tr');
       row.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
       if (rank <= 2) {
-        row.style.background = 'rgba(255, 215, 0, 0.04)'; // Highlight top 2 qualification slots for final
+        row.style.background = 'rgba(255, 215, 0, 0.04)';
       }
 
       row.innerHTML = `
@@ -1351,7 +1353,11 @@ async function loadStandings() {
   }
 }
 
+// Load on page startup
 document.addEventListener('DOMContentLoaded', loadStandings);
+
+// OPTIONAL: Automatically poll and re-fetch every 3 seconds so changes appear live without refreshing!
+setInterval(loadStandings, 3000);
 </script>
 <section id="timeline">
   <div class="eyebrow">Road to the Final</div>
