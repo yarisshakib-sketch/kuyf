@@ -1944,9 +1944,6 @@ function closeNav() {
 
 const FUTYF_GREETING = "হাই! আমি FutYF AI ⚽ — KUYF Football Tournament-এর ওপেন-সোর্স এআই সহকারী। টুর্নামেন্ট সম্পর্কে যা জানতে চাও জিজ্ঞেস করো!";
 
-// Your direct Hugging Face API Token (exposed in frontend code as requested)
-const HF_API_TOKEN = "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";
-
 // Your exact Hugging Face Inference API Router URL
 const HF_MODEL_URL = "https://router.huggingface.co/hf-inference/models/Zari10/kuyf-xlm-roberta-bangla-qa";
 // Section-id mappings for quick buttons
@@ -2069,35 +2066,36 @@ const FUTYF_KB = [
    2) DIRECT CLIENT-SIDE API CALL WITH BEARER TOKEN (XLMRoberta QA)
   --------------------------------------------------------------------- */
 async function queryHuggingFaceAPI(userPrompt) {
-  const tournamentContext = `KUYF Football Tournament 2026. Organized by আহম্মদ উল্লাহ কাজী বাড়ী youth organization. Team Registration Fee: ৳৮০০ per team. Total 5 teams: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC. Match Format: Group matches 20+20 = 40 mins with 5-minute half-time. Finals 20+20 + extra 10 mins, then 3 penalties if tied. Cards: Yellow card 5 mins outside and 50 Taka fine. Red card expulsion and 100 Taka fine.`;
+    const tournamentContext = `KUYF Football Tournament 2026. Organized by আহম্মদ উল্লাহ কাজী বাড়ী youth organization. Team Registration Fee: ৳৮০০ per team. Total 5 teams: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC. Match Format: Group matches 20+20 = 40 mins with 5-minute half-time. Finals 20+20 + extra 10 mins, then 3 penalties if tied. Cards: Yellow card 5 mins outside and 50 Taka fine. Red card expulsion and 100 Taka fine.`;
 
-  try {
-    const response = await fetch(HF_MODEL_URL, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${HF_API_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        inputs: {
-          question: userPrompt,
-          context: tournamentContext
+    try {
+        const response = await fetch(HF_MODEL_URL, {
+            method: "POST",
+            headers: {
+                // REMOVED the "Authorization" header entirely so no token can leak!
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                inputs: {
+                    question: userPrompt,
+                    context: tournamentContext
+                }
+            })
+        });
+
+        const result = await response.json();
+        
+        if (result && result.answer) {
+            return result.answer.trim();
+        } else if (Array.isArray(result) && result[0]?.answer) {
+            return result[0].answer.trim();
+        } else if (result.error) {
+            console.warn("Model loading or error:", result.error);
         }
-      })
-    });
-
-    const result = await response.json();
-    
-    // Extract answer from Hugging Face QA pipeline response format
-    if (result && result.answer) {
-      return result.answer.trim();
-    } else if (Array.isArray(result) && result[0]?.answer) {
-      return result[0].answer.trim();
+    } catch (err) {
+        console.error("Direct HF API Error:", err);
     }
-  } catch (err) {
-    console.error("Direct HF API Error:", err);
-  }
-  return null;
+    return null;
 }
 
 /* ---------------------------------------------------------------------
