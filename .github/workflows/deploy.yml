@@ -1,0 +1,28 @@
+name: Deploy KUYF Website to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ] # আপনার ব্রাঞ্চের নাম main বা master যা থাকে এখানে দিন
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Inject HF Token into HTML
+        run: |
+          find . -name "*.html" -type f -exec sed -i 's/__HF_TOKEN_PLACEHOLDER__/${{ secrets.HF_API_TOKEN }}/g' {} +
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
