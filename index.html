@@ -1925,10 +1925,10 @@ function closeNav() {
   <div class="futyf-messages" id="futyfMessages"></div>
 
   <div class="futyf-suggestions" id="futyfSuggestions">
+    <span class="futyf-chip" onclick="futyfAsk('কে টপে আছে?')">লিড টেবিল</span>
     <span class="futyf-chip" onclick="futyfAsk('রেজিস্ট্রেশন ফি কত?')">রেজিস্ট্রেশন ফি</span>
     <span class="futyf-chip" onclick="futyfAsk('ম্যাচের সময় কত মিনিট?')">ম্যাচ ফরম্যাট</span>
-    <span class="futyf-chip" onclick="futyfAsk('পয়েন্ট সিস্টেম কেমন?')">পয়েন্ট সিস্টেম</span>
-    <span class="futyf-chip" onclick="futyfAsk('ফিক্সচার কবে?')">ফিক্সচার</span>
+    <span class="futyf-chip" onclick="futyfAsk('পরবর্তী ম্যাচ কবে?')">পরবর্তী ম্যাচ</span>
   </div>
 
   <div class="futyf-input-row">
@@ -1939,118 +1939,242 @@ function closeNav() {
 
 <script>
 /* ==========================================================================
-   FutYF — local, rule-based tournament assistant.
+   FutYF — local, rule-based tournament assistant with section-redirect.
 
-   NOTE: There is no live-site backend wired up, so this runs entirely
-   client-side against a knowledge base built from this page's content.
-   (A real LLM-backed version needs a server-side proxy holding the
-   Anthropic API key — browsers can't call api.anthropic.com directly.
-   Until that proxy exists, keep this KB updated as the tournament facts
-   change — team names, fixtures, fees, cards, etc.)
+   Every answer is paired with the id of the <section> on this page that
+   actually contains the live/authoritative version of that info. The chat
+   bubble shows a short answer + a "👉 Go to section" button that scrolls
+   there and highlights it — so the user always lands on the real,
+   currently-live data (standings.json / players.json rendered tables,
+   fixture table, fee card, rules list, etc.) instead of a static guess.
    ========================================================================== */
 
-const FUTYF_GREETING = "হাই! আমি FutYF ⚽ — KUYF Football Tournament নিয়ে যা জানতে চাও জিজ্ঞেস করো, ফি হোক, শিডিউল হোক, নিয়মকানুন হোক।";
-const FUTYF_FALLBACK = "এই প্রশ্নটা আমার কাছে ঠিক পরিষ্কার না! Structure, Fees, Scoring বা Fixture সেকশনে ঘুরে দেখো, নাহলে কমিটিকে সরাসরি জিজ্ঞেস করতে পারো। 😊";
+const FUTYF_GREETING = "হাই! আমি FutYF ⚽ — KUYF Football Tournament নিয়ে যা জানতে চাও জিজ্ঞেস করো, উত্তরের সাথে সরাসরি সেই সেকশনেও নিয়ে যাব।";
+const FUTYF_FALLBACK = { text: "এই প্রশ্নটা আমার কাছে ঠিক পরিষ্কার না! নিচের বাটনগুলো থেকে খুঁজে দেখো, নাহলে কমিটিকে সরাসরি জিজ্ঞেস করতে পারো। 😊", section: null };
 
-/*
-  Each entry: keywords (Bengali + English + common transliterations),
-  and an answer built strictly from facts already on this page.
-  Order matters only for scoring ties — highest keyword-match count wins.
-*/
-const FUTYF_KB = [
-  // ---- Registration fee ----
-  { keywords:['fee','ফি','registration fee','রেজিস্ট্রেশন ফি','koto taka','কত টাকা','entry fee','দল ফি','team fee'],
-    answer: "টিম রেজিস্ট্রেশন ফি ৳৮০০ প্রতি দল (৫টি দল অংশগ্রহণ করছে বলে)। প্রতিটি দল নিজেদের জার্সি নিজেরাই ম্যানেজ করবে। আগামী ম্যাচের আগে ১০০% ফি পরিশোধ করতে হবে — লিংক Fees সেকশনে আছে।" },
+// Section-id -> human label shown on the jump button
+const FUTYF_SECTION_LABELS = {
+  structure: 'Structure সেকশনে যাও',
+  format: 'Format সেকশনে যাও',
+  positions: 'Teams সেকশনে যাও',
+  scoring: 'Rules সেকশনে যাও',
+  fees: 'Fees সেকশনে যাও',
+  standings: 'Standings সেকশনে যাও',
+  Fixture: 'Fixture সেকশনে যাও',
+  timeline: 'Schedule সেকশনে যাও',
+  rules: 'Jersey সেকশনে যাও',
+  awards: 'Awards সেকশনে যাও'
+};
 
-  // ---- Payment method ----
-  { keywords:['payment','পেমেন্ট','bkash','বিকাশ','nagad','নগদ','how to pay','কিভাবে পাঠাবো','পেমেন্ট ফর্ম'],
-    answer: "পেমেন্ট ফর্মটা Fees সেকশনে দেওয়া আছে (\"পেমেন্ট ফর্ম পূরণ করুন\" বাটন) — ওখান দিয়ে পেমেন্ট সম্পন্ন করে ফেলো, ম্যাচের আগে ১০০% পরিশোধ বাধ্যতামূলক।" },
-
-  // ---- Card fines ----
-  { keywords:['fine','জরিমানা','card fine','কার্ড জরিমানা','yellow card fine','red card fine','৫০','১০০'],
-    answer: "হলুদ কার্ডের জরিমানা ৳৫০ আর লাল কার্ডের জরিমানা ৳১০০। এখন পর্যন্ত Saif (Titans FC) আর Foisal (United Kings) একটা করে হলুদ কার্ড পেয়েছে — সংশ্লিষ্ট দলগুলোকে পরের ম্যাচের আগে জরিমানা পরিশোধ করতে বলা হয়েছে।" },
-
-  // ---- Squad size / positions ----
-  { keywords:['squad','team size','player count','খেলোয়াড় সংখ্যা','স্কোয়াড','৫ জন','extra player','অতিরিক্ত খেলোয়াড়','substitute','বদলি','কয়জন'],
-    answer: "প্রতি দলে ৫ জন মূল খেলোয়াড় + ১ জন অতিরিক্ত (বাধ্যতামূলক) — মোট ৬ জনের স্কোয়াড। লটারির মাধ্যমে প্লেয়ার ড্রাফট হয়ে দল সাজানো হয়েছে, সব দল মিলিয়ে প্রায় ৩০ জন খেলোয়াড়।" },
-
-  // ---- Substitution rule ----
-  { keywords:['substitution','পরিবর্তন','খেলোয়াড় পরিবর্তন','চেঞ্জ'],
-    answer: "ম্যাচ চলাকালীন সর্বোচ্চ ১ জন খেলোয়াড় পরিবর্তন (Substitution) করার অনুমতি আছে।" },
-
-  // ---- Match duration / format ----
-  { keywords:['minute','duration','match time','ম্যাচ সময়','২০','৪০','format','ফরম্যাট','কতক্ষণ','কতমিনিট','half','হাফ','বিরতি'],
-    answer: "গ্রুপ পর্বের প্রতিটি ম্যাচ ২০+২০ = ৪০ মিনিটের, মাঝে ৫ মিনিট বিরতি। ফাইনালে থাকবে ২০+২০ মিনিট + অতিরিক্ত ১০ মিনিট (ET), তারপরও সমতা থাকলে ৩টি পেনাল্টি শ্যুটআউট।" },
-
-  // ---- Points / draw / tiebreak ----
-  { keywords:['point','পয়েন্ট','win points','জয়ের পয়েন্ট','draw','ড্র','tiebreak','tie','সমান','goal difference','গোল পার্থক্য'],
-    answer: "জিতলে ৩ পয়েন্ট, ড্র হলে দুই দলই ১ পয়েন্ট করে পায়। গ্রুপ পর্বে পয়েন্ট সমান হলে Goal Difference দিয়ে ফয়সালা হয়, সেটাও সমান থাকলে ৩টি পেনাল্টি শ্যুটআউট দিয়ে বিজয়ী ঠিক হয়।" },
-
-  // ---- Cards / discipline ----
-  { keywords:['card','কার্ড','yellow','red','হলুদ','লাল','foul','ফাউল','discipline','শৃঙ্খলা','সাসপেন্ড','ban'],
-    answer: "হলুদ কার্ড পেলে ফাউল হয় (প্রতিপক্ষ ফ্রি-কিক পাবে) এবং খেলোয়াড়কে ৫ মিনিট মাঠের বাইরে থাকতে হয়। লাল কার্ড পেলে বাকি ম্যাচের জন্যই মাঠের বাইরে। ২টা হলুদ কার্ড হলে পরের ম্যাচে নিষেধাজ্ঞা আসে।" },
-
-  // ---- Tournament structure ----
-  { keywords:['structure','group stage','গ্রুপ পর্ব','round robin','রাউন্ড রবিন','roadmap','কাঠামো','how does it work','কিভাবে হবে'],
-    answer: "৫টা দল একই গ্রুপে রাউন্ড-রবিন পদ্ধতিতে খেলবে — প্রতি দল প্রতি দলের বিপক্ষে একবার (মোট ১০টা গ্রুপ ম্যাচ)। এরপর পয়েন্ট টেবিলের টপ ২ দল ফাইনালে উঠে ট্রফির জন্য লড়বে।" },
-
-  // ---- Fixture / schedule ----
-  { keywords:['schedule','fixture','ফিক্সচার','সময়সূচী','match date','date','কবে','kobe','match day','next match'],
-    answer: "পূর্ণাঙ্গ সময়সূচী Fixture সেকশনে আছে — প্রতিটা ম্যাচের নম্বর, দুই দল, তারিখ ও সময় দেওয়া আছে। বাকি গ্রুপ ম্যাচগুলো ১৪ ও ২১ আগস্ট হবে, আর ফাইনাল ২১ আগস্ট রাত ৯টায়, টার্ফে (বাজেট সাপেক্ষে)।" },
-
-  // ---- Standings ----
-  { keywords:['standing','point table','পয়েন্ট টেবিল','rank','position','কে এগিয়ে','table'],
-    answer: "লাইভ পয়েন্ট টেবিল পাবে Standings সেকশনে — ম্যাচ, জয়, ড্র, হার, গোল ব্যবধান আর পয়েন্ট সহ রিয়েল-টাইমে আপডেট হয় (৩ সেকেন্ড পরপর রিফ্রেশ)।" },
-
-  // ---- Jersey / kit rules ----
-  { keywords:['jersey','jersy','জার্সি','kit','uniform','পোশাক','shorts','প্যান্ট'],
-    answer: "প্রতিটি দল নিজের বাজেটে জার্সি ঠিক করবে, বাইরের কারো থেকে ভাড়া/ধার করা যাবে না। জেনেরিক দেশ/ক্লাবের জার্সি পরা যায়, তবে টিমের সবার জার্সি হুবহু একইরকম (লোগো, এডিশন সহ) হতে হবে — শুধু রঙ মিললে চলবে না। মাঠে শর্টস বা ফুল ট্রাউজার পরতেই হবে, জিন্স/সাধারণ প্যান্ট চলবে না।" },
-
-  // ---- Venue ----
-  { keywords:['venue','ground','মাঠ','location','কোথায়','সমুদ্র','turf','টার্ফ','bay of bengal'],
-    answer: "গ্রুপ পর্বের ম্যাচগুলো সমুদ্রপাড়ের মাঠে হবে। ফাইনালটা বাজেট অনুযায়ী টার্ফ মাঠে অনুষ্ঠিত হওয়ার কথা।" },
-
-  // ---- Registration / draft timeline ----
-  { keywords:['register','রেজিস্ট্রেশন','join','sign up','নাম দিব','যোগ দিব','draft','ড্রাফট'],
-    answer: "প্লেয়ার নাম কালেকশন ও লটারির মাধ্যমে ড্রাফট হয়ে গেছে ২৪ জুন, ২০২৬-এ। এখন টিম রেজিস্ট্রেশন ফি (৳৮০০) পরিশোধ করে দল চূড়ান্ত করার পালা — Fees সেকশনে পেমেন্ট ফর্ম আছে।" },
-
-  // ---- Awards ----
-  { keywords:['award','prize','পুরস্কার','best player','mvp','সেরা খেলোয়াড়','trophy','ট্রফি'],
-    answer: "চ্যাম্পিয়ন আর রানার-আপ দুই দলই KUYF থেকে ট্রফি ও স্বীকৃতি পাবে। এছাড়া পুরো টুর্নামেন্টে সেরা পারফরম্যান্সের জন্য একজন খেলোয়াড় পাবে একটিমাত্র বিশেষ পুরস্কার — Tournament Best Player।" },
-
-  // ---- Leaderboard / top scorer ----
-  { keywords:['top scorer','সর্বোচ্চ গোল','goal scorer','leaderboard','লিডারবোর্ড','best players','potm','man of the match'],
-    answer: "Top Best Players আর Top Goal Scorers-এর লাইভ লিডারবোর্ড Awards সেকশনের নিচে আছে। Best Player র‍্যাংকিং হয় এই ফর্মুলায়: POTM ৪০% + Assist ২০% + Save ২০% + Goal ২০%।" },
-
-  // ---- Teams ----
-  { keywords:['team name','teams','দলগুলো','কয়টা দল','how many team','which teams'],
-    answer: "এবারের টুর্নামেন্টে ৫টি দল খেলছে: United Kings (অধিনায়ক Foisal), No Mercy! (অধিনায়ক Tareq), Titans FC (অধিনায়ক Nasir), Pioneers FC (অধিনায়ক Forhad), আর Legend United FC (অধিনায়ক Masud)।" },
-
-  // ---- Committee / decisions / complaints ----
-  { keywords:['committee','কমিটি','complaint','অভিযোগ','referee','রেফারি','decision','সিদ্ধান্ত'],
-    answer: "রেফারির সিদ্ধান্তই চূড়ান্ত ও বাধ্যতামূলক। কোনো অভিযোগ থাকলে ম্যাচ শেষের ১৫ মিনিটের মধ্যে জানাতে হবে, আর সবকিছুর ক্ষেত্রেই টুর্নামেন্ট কমিটির সিদ্ধান্তই চূড়ান্ত ধরা হবে।" },
-
-  // ---- Weather / postponement ----
-  { keywords:['weather','আবহাওয়া','rain','বৃষ্টি','postpone','স্থগিত','cancel','বাতিল'],
-    answer: "আবহাওয়া বা কোনো জরুরি কারণে ম্যাচ স্থগিত হলে নতুন সময়সূচি পরে ঘোষণা করা হবে — Fixture সেকশন চেক করতে থাকো।" },
+/* ---------------------------------------------------------------------
+   1) LIVE-DATA INTENTS — read straight from the DOM tables that
+      loadStandings() / loadPlayerLeaderboards() already fill in from
+      standings.json and players.json. Checked before the static KB.
+   --------------------------------------------------------------------- */
+const FUTYF_LIVE_INTENTS = [
+  { keywords: ['টপে','এগিয়ে','লিড','লিডার','শীর্ষে','who is leading','top of the table','current leader','প্রথম স্থানে'],
+    section: 'standings', handler: function(){ return futyfLiveLeader(); } },
+  { keywords: ['top scorer','সর্বোচ্চ গোল','গোলদাতা','সবচেয়ে বেশি গোল','most goals'],
+    section: 'awards', handler: function(){ return futyfLiveTopScorer(); } },
+  { keywords: ['best player','সেরা খেলোয়াড়','mvp','পারফরম্যান্স র‍্যাংকিং'],
+    section: 'awards', handler: function(){ return futyfLiveBestPlayer(); } },
+  { keywords: ['next match','পরবর্তী ম্যাচ','পরের খেলা','পরের ম্যাচ কবে','upcoming match'],
+    section: 'Fixture', handler: function(){ return futyfLiveNextMatch(); } },
+  { keywords: ['standing','point table','পয়েন্ট টেবিল','ranking','full table','সম্পূর্ণ টেবিল'],
+    section: 'standings', handler: function(){ return futyfLiveFullStandings(); } }
 ];
 
-function futyfAnswer(query){
-  const q = query.toLowerCase();
-  let best = null, bestScore = 0;
-  FUTYF_KB.forEach(item => {
-    let score = 0;
-    item.keywords.forEach(k => { if (q.includes(k.toLowerCase())) score++; });
-    if (score > bestScore) { bestScore = score; best = item; }
-  });
-  return best ? best.answer : FUTYF_FALLBACK;
+function futyfRowCells(sel){
+  const row = document.querySelector(sel + ' tr');
+  return row ? Array.from(row.querySelectorAll('td')) : null;
 }
 
-function futyfAppend(role, text){
+function futyfLiveLeader(){
+  const cells = futyfRowCells('#standings-body');
+  if(!cells || cells.length < 9) return null;
+  const name = cells[1].textContent.trim();
+  const pts = cells[8].textContent.replace(/[^\d]/g,'').trim();
+  const w = cells[3].textContent.trim(), d = cells[4].textContent.trim(), l = cells[5].textContent.trim();
+  return `এই মুহূর্তে পয়েন্ট টেবিলের শীর্ষে আছে ${name} — ${pts} পয়েন্ট নিয়ে (${w} জয়, ${d} ড্র, ${l} হার)।`;
+}
+
+function futyfLiveTopScorer(){
+  const cells = futyfRowCells('#top-scorers-body');
+  if(!cells || cells.length < 4) return null;
+  const name = cells[1].textContent.trim();
+  const team = cells[2].textContent.trim();
+  const goals = cells[3].textContent.trim();
+  return `এখন পর্যন্ত সর্বোচ্চ গোলদাতা ${name} (${team}) — ${goals} গোল নিয়ে।`;
+}
+
+function futyfLiveBestPlayer(){
+  const cells = futyfRowCells('#best-players-body');
+  if(!cells || cells.length < 7) return null;
+  const nameDiv = cells[1].querySelector('div');
+  const name = nameDiv ? nameDiv.textContent.trim() : cells[1].textContent.trim();
+  const score = cells[6].textContent.trim();
+  return `এই মুহূর্তে Best Player র‍্যাংকিংয়ে টপে আছে ${name}, ওয়েটেড স্কোর ${score}।`;
+}
+
+function futyfLiveNextMatch(){
+  const rows = document.querySelectorAll('#Fixture table tbody tr');
+  for(const row of rows){
+    const cells = row.querySelectorAll('td');
+    if(cells.length < 3) continue;
+    const resultCell = cells[2].textContent.trim();
+    if(resultCell.includes('(')) continue; // played matches show "(Drawn)" / "(...Won)"
+    const teamSpans = cells[1].querySelectorAll('span');
+    const teams = Array.from(teamSpans).map(s => s.textContent.trim()).filter(Boolean);
+    const teamText = teams.length >= 2 ? `${teams[0]} বনাম ${teams[1]}` : cells[1].textContent.trim();
+    return `পরবর্তী ম্যাচ: ${teamText} — ${resultCell}।`;
+  }
+  return "গ্রুপ পর্বের সব ম্যাচ শেষ! এখন ফাইনালের অপেক্ষা।";
+}
+
+function futyfLiveFullStandings(){
+  const rows = document.querySelectorAll('#standings-body tr');
+  if(!rows.length) return null;
+  const lines = Array.from(rows).slice(0,5).map((row,i) => {
+    const cells = row.querySelectorAll('td');
+    const name = cells[1] ? cells[1].textContent.trim() : '?';
+    const pts = cells[8] ? cells[8].textContent.replace(/[^\d]/g,'') : '0';
+    return `${i+1}. ${name} — ${pts} pts`;
+  });
+  return `বর্তমান পয়েন্ট টেবিল:\n${lines.join('\n')}`;
+}
+
+/* ---------------------------------------------------------------------
+   2) STATIC KB — each entry maps to the section that actually holds
+      the authoritative info, so the answer + button always agree.
+   --------------------------------------------------------------------- */
+const FUTYF_KB = [
+  { keywords:['fee','ফি','রেজিস্ট্রেশন ফি','কত টাকা','entry fee','দল ফি','team fee'], section:'fees',
+    answer: "টিম রেজিস্ট্রেশন ফি ৳৮০০ প্রতি দল (৫টি দল অংশগ্রহণ করছে বলে)। আগামী ম্যাচের আগে ১০০% ফি পরিশোধ করতে হবে।" },
+
+  { keywords:['payment','পেমেন্ট','বিকাশ','নগদ','bkash','nagad','পেমেন্ট ফর্ম','কিভাবে পাঠাবো'], section:'fees',
+    answer: "পেমেন্ট ফর্মের লিংক Fees সেকশনে দেওয়া আছে — ওখান দিয়ে পেমেন্ট সম্পন্ন করে ফেলো।" },
+
+  { keywords:['fine','জরিমানা','কার্ড জরিমানা'], section:'fees',
+    answer: "হলুদ কার্ডের জরিমানা ৳৫০ আর লাল কার্ডের জরিমানা ৳১০০। বর্তমান কার্ডপ্রাপ্ত খেলোয়াড়দের তালিকা Fees সেকশনে আছে।" },
+
+  { keywords:['squad','স্কোয়াড','খেলোয়াড় সংখ্যা','অতিরিক্ত খেলোয়াড়','কয়জন খেলবে'], section:'positions',
+    answer: "প্রতি দলে ৫ জন মূল খেলোয়াড় + ১ জন অতিরিক্ত (বাধ্যতামূলক) — মোট ৬ জনের স্কোয়াড।" },
+
+  { keywords:['substitution','পরিবর্তন','খেলোয়াড় পরিবর্তন'], section:'scoring',
+    answer: "ম্যাচ চলাকালীন সর্বোচ্চ ১ জন খেলোয়াড় পরিবর্তনের অনুমতি আছে।" },
+
+  { keywords:['minute','সময়','মিনিট','ম্যাচ ফরম্যাট','কতক্ষণ','হাফ','বিরতি'], section:'scoring',
+    answer: "গ্রুপ পর্বের ম্যাচ ২০+২০ = ৪০ মিনিটের, মাঝে ৫ মিনিট বিরতি। ফাইনালে ২০+২০ + অতিরিক্ত ১০ মিনিট (ET), তারপরও সমতা থাকলে ৩টি পেনাল্টি।" },
+
+  { keywords:['পয়েন্ট সিস্টেম','win points','draw','ড্র নিয়ম','গোল পার্থক্য'], section:'scoring',
+    answer: "জিতলে ৩ পয়েন্ট, ড্র হলে দুই দলই ১ পয়েন্ট করে। পয়েন্ট সমান হলে Goal Difference, তাও সমান হলে ৩টি পেনাল্টি দিয়ে ফয়সালা।" },
+
+  { keywords:['card','কার্ড','yellow','red','হলুদ','লাল','foul','ফাউল'], section:'scoring',
+    answer: "হলুদ কার্ডে ৫ মিনিট মাঠের বাইরে, লাল কার্ডে বাকি ম্যাচের জন্য বাইরে। ২টা হলুদ কার্ড = পরের ম্যাচে নিষেধাজ্ঞা।" },
+
+  { keywords:['structure','গ্রুপ পর্ব','round robin','রাউন্ড রবিন','কাঠামো'], section:'structure',
+    answer: "৫টা দল রাউন্ড-রবিন গ্রুপ পর্বে খেলবে (১০টা ম্যাচ), এরপর টপ ২ দল ফাইনালে উঠবে।" },
+
+  { keywords:['schedule','fixture','ফিক্সচার','সময়সূচী','কবে','ম্যাচ ডে'], section:'Fixture',
+    answer: "পূর্ণাঙ্গ সময়সূচী নিচে দেওয়া আছে — প্রতিটা ম্যাচের নম্বর, দল আর তারিখ-সময়সহ।" },
+
+  { keywords:['jersey','jersy','জার্সি','kit','পোশাক','শর্টস'], section:'rules',
+    answer: "প্রতিটি দল নিজের বাজেটে জার্সি ঠিক করবে, তবে টিমের সবার জার্সি হুবহু একইরকম হতে হবে। মাঠে শর্টস/ফুল ট্রাউজার বাধ্যতামূলক।" },
+
+  { keywords:['venue','মাঠ','সমুদ্রপাড়','turf','টার্ফ'], section:'format',
+    answer: "গ্রুপ পর্বের ম্যাচ সমুদ্রপাড়ের মাঠে হবে, ফাইনাল বাজেট অনুযায়ী টার্ফে।" },
+
+  { keywords:['register','রেজিস্ট্রেশন','draft','ড্রাফট'], section:'timeline',
+    answer: "প্লেয়ার ড্রাফট হয়ে গেছে ২৪ জুন, ২০২৬-এ। বাকি সময়সূচী নিচে দেওয়া আছে।" },
+
+  { keywords:['award','পুরস্কার','trophy','ট্রফি','চ্যাম্পিয়ন','রানার আপ'], section:'awards',
+    answer: "চ্যাম্পিয়ন আর রানার-আপ দুই দলই ট্রফি পাবে, আর একজন খেলোয়াড় পাবে Tournament Best Player পুরস্কার।" },
+
+  { keywords:['team name','দলগুলো','কয়টা দল','কোন দল'], section:'positions',
+    answer: "৫টি দল খেলছে: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC — স্কোয়াড লিস্ট নিচে দেখো।" },
+
+  { keywords:['committee','কমিটি','অভিযোগ','রেফারি'], section:'scoring',
+    answer: "রেফারির সিদ্ধান্তই চূড়ান্ত। অভিযোগ থাকলে ম্যাচ শেষের ১৫ মিনিটের মধ্যে জানাতে হবে।" },
+
+  { keywords:['weather','আবহাওয়া','বৃষ্টি','স্থগিত'], section:'scoring',
+    answer: "আবহাওয়া বা জরুরি কারণে ম্যাচ স্থগিত হলে নতুন সময়সূচি ঘোষণা করা হবে।" },
+];
+
+/* ---------------------------------------------------------------------
+   3) FUZZY WORD-LEVEL SCORING
+   --------------------------------------------------------------------- */
+function futyfScore(query, keywords){
+  let score = 0;
+  keywords.forEach(kw => {
+    const words = kw.toLowerCase().split(/\s+/).filter(Boolean);
+    let matched = 0;
+    words.forEach(w => { if (query.includes(w)) matched++; });
+    if (matched === words.length && words.length > 0) score += words.length;
+    else score += matched * 0.5;
+  });
+  return score;
+}
+
+function futyfAnswer(query){
+  const q = query.toLowerCase().trim();
+
+  let liveBest = null, liveBestScore = 0;
+  FUTYF_LIVE_INTENTS.forEach(item => {
+    const s = futyfScore(q, item.keywords);
+    if (s > liveBestScore) { liveBestScore = s; liveBest = item; }
+  });
+  if (liveBest && liveBestScore > 0) {
+    const text = liveBest.handler();
+    if (text) return { text, section: liveBest.section };
+  }
+
+  let best = null, bestScore = 0;
+  FUTYF_KB.forEach(item => {
+    const s = futyfScore(q, item.keywords);
+    if (s > bestScore) { bestScore = s; best = item; }
+  });
+  if (best && bestScore >= 0.5) return { text: best.answer, section: best.section };
+
+  return FUTYF_FALLBACK;
+}
+
+/* ---------------------------------------------------------------------
+   4) Section jump + highlight
+   --------------------------------------------------------------------- */
+function futyfScroll(sectionId){
+  const el = document.getElementById(sectionId);
+  if (!el) return;
+  futyfClose();
+  setTimeout(() => {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.style.transition = 'box-shadow .4s ease, border-radius .4s ease';
+    el.style.boxShadow = '0 0 0 3px rgba(56,255,138,0.65), 0 0 46px rgba(56,255,138,0.35)';
+    el.style.borderRadius = '18px';
+    setTimeout(() => { el.style.boxShadow = ''; }, 2000);
+  }, 150);
+}
+
+/* ---------------------------------------------------------------------
+   5) UI plumbing
+   --------------------------------------------------------------------- */
+function futyfAppend(role, text, sectionId){
   const box = document.getElementById('futyfMessages');
   const msg = document.createElement('div');
   msg.className = 'futyf-msg ' + role;
-  msg.textContent = text;
+
+  const textNode = document.createElement('div');
+  textNode.style.whiteSpace = 'pre-line';
+  textNode.textContent = text;
+  msg.appendChild(textNode);
+
+  if (sectionId && FUTYF_SECTION_LABELS[sectionId]) {
+    const btn = document.createElement('button');
+    btn.textContent = '👉 ' + FUTYF_SECTION_LABELS[sectionId];
+    btn.style.cssText = 'margin-top:8px;font-size:11.5px;padding:7px 13px;border-radius:999px;border:1px solid rgba(41,231,255,0.5);background:rgba(41,231,255,0.08);color:var(--neon-cyan);cursor:pointer;display:block;';
+    btn.onclick = () => futyfScroll(sectionId);
+    msg.appendChild(btn);
+  }
+
   box.appendChild(msg);
   box.scrollTop = box.scrollHeight;
 }
@@ -2063,11 +2187,11 @@ function futyfReply(query){
   box.appendChild(typing);
   box.scrollTop = box.scrollHeight;
 
-  // Small delay just to feel like a reply rather than an instant lookup
   setTimeout(() => {
     typing.remove();
-    futyfAppend('bot', futyfAnswer(query));
-  }, 350);
+    const { text, section } = futyfAnswer(query);
+    futyfAppend('bot', text, section);
+  }, 300);
 }
 
 function futyfSend(){
