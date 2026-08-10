@@ -1939,13 +1939,15 @@ function closeNav() {
 
 <script>
 /* ==========================================================================
-   FutYF AI — Hugging Face Unauthenticated API Integration + Local Fallback
+   FutYF AI — Direct Client-Side Hugging Face Integration (No Proxy)
    ========================================================================== */
 
 const FUTYF_GREETING = "হাই! আমি FutYF AI ⚽ — KUYF Football Tournament-এর ওপেন-সোর্স এআই সহকারী। টুর্নামেন্ট সম্পর্কে যা জানতে চাও জিজ্ঞেস করো!";
 
-// Corrected URL without typos
-// Updated to use Hugging Face's modern router endpoint
+// Your direct Hugging Face API Token (exposed in frontend code as requested)
+const HF_API_TOKEN = "YOUR_HUGGING_FACE_TOKEN_HERE";
+
+// Using the Hugging Face Serverless Router Inference Endpoint
 const HF_MODEL_URL = "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.2";
 
 // Section-id mappings for quick buttons
@@ -2065,7 +2067,7 @@ const FUTYF_KB = [
 ];
 
 /* ---------------------------------------------------------------------
-   2) UNAUTHENTICATED API CALL TO HUGGING FACE INFERENCE API
+   2) DIRECT CLIENT-SIDE API CALL WITH BEARER TOKEN
    --------------------------------------------------------------------- */
 async function queryHuggingFaceAPI(userPrompt) {
   const contextPrompt = `[INST] You are FutYF AI, a helpful assistant for KUYF Football Tournament. Answer accurately in Bengali.
@@ -2075,6 +2077,7 @@ User Question: ${userPrompt} [/INST]`;
     const response = await fetch(HF_MODEL_URL, {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${HF_API_TOKEN}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -2093,7 +2096,7 @@ User Question: ${userPrompt} [/INST]`;
       return cleaned || null;
     }
   } catch (err) {
-    console.error("HF Public API Error:", err);
+    console.error("Direct HF API Error:", err);
   }
   return null;
 }
@@ -2127,7 +2130,7 @@ async function futyfAnswer(query) {
     return { text: best.answer, section: best.section };
   }
 
-  // Step 3: Fallback to Public Open-Source API
+  // Step 3: Direct API Call with Exposed Token (Will bypass 401, but browser CORS warning may still apply depending on HF's current headers)
   const apiResponse = await queryHuggingFaceAPI(query);
   if (apiResponse) {
     return { text: apiResponse, section: null };
