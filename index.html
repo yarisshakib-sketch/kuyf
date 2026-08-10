@@ -1906,7 +1906,7 @@ function closeNav() {
 }
 </script>
 
-<!-- ===================== FutYF AI Chat Assistant (Powered by Hugging Face Open Source API) ===================== -->
+<!-- ===================== FutYF AI Chat Assistant (Powered by Hugging Face Unauthenticated API) ===================== -->
 <button class="futyf-toggle" id="futyfToggle" aria-label="Chat with FutYF" onclick="futyfOpen()" style="left: 20px; right: auto; border-radius: 50% 50% 50% 10px;">
   ⚽ AI
   <span class="futyf-dot"></span>
@@ -1939,13 +1939,12 @@ function closeNav() {
 
 <script>
 /* ==========================================================================
-   FutYF AI — Hugging Face Open Source API Integration + Local Fallback
+   FutYF AI — Hugging Face Unauthenticated API Integration + Local Fallback
    ========================================================================== */
 
 const FUTYF_GREETING = "হাই! আমি FutYF AI ⚽ — KUYF Football Tournament-এর ওপেন-সোর্স এআই সহকারী। টুর্নামেন্ট সম্পর্কে যা জানতে চাও জিজ্ঞেস করো!";
 
-// ⚠️ IMPORTANT: Get a free token from https://huggingface.co/settings/tokens and paste it here
-const HF_API_TOKEN = "YOUR_HUGGINGFACE_API_TOKEN_HERE"; 
+// Using Hugging Face Serverless Inference API without exposing any secret tokens
 const HF_MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
 
 // Section-id mappings for quick buttons
@@ -1963,7 +1962,7 @@ const FUTYF_SECTION_LABELS = {
 };
 
 /* ---------------------------------------------------------------------
-   1) LOCAL LIVE DATA & HARDCODED KB (Fallback & Exact Matcher)
+   1) LOCAL LIVE DATA & HARDCODED KB (Primary & Fast Matcher)
    --------------------------------------------------------------------- */
 const FUTYF_LIVE_INTENTS = [
   { keywords: ['টপে','এগিয়ে','লিড','লিডার','শীর্ষে','who is leading','top of the table','current leader','প্রথম স্থানে'],
@@ -2048,7 +2047,7 @@ const FUTYF_KB = [
     answer: "পেমেন্ট ফর্মের লিংক Fees সেকশনে দেওয়া আছে — ওখান দিয়ে পেমেন্ট সম্পন্ন করে ফেলো।" },
   { keywords:['fine','জরিমানা','কার্ড জরিমানা','কার কত টাকা ফাইন বাকী','কে কে কার্ড খেয়েছে'], section:'fees',
     answer: "হলুদ কার্ডের জরিমানা ৫০ টাকা আর লাল কার্ডের জরিমানা ১০০ টাকা। বর্তমান কার্ডপ্রাপ্ত খেলোয়াড়দের তালিকা ও জরিমানার বিস্তারিত Fees সেকশনে দেখতে পারো।" },
-  { keywords:['committee','কমিটি','কমিতি','komiti','অভিযোগ','রেফারি','কে কমিটি'], section:'rules',
+  { keywords:['committee','কমিতি','komiti','অভিযোগ','রেফারি','কে কমিটি','কমিটি কে'], section:'rules',
     answer: "রেফারির সিদ্ধান্তই চূড়ান্ত। অভিযোগ থাকলে ম্যাচ শেষের ১৫ মিনিটের মধ্যে জানাতে হবে। কমিটির দায়িত্বে আছেন মারুফ, টিপু আর ইমন, সাথে বাকিরা সহায়তা করছেন।" },
   { keywords:['squad','স্কোয়াড','খেলোয়াড় সংখ্যা','অতিরিক্ত খেলোয়াড়','কয়জন খেলবে','মুমিন কোন টিমে','রুহান কোন টিমে','ফয়সাল কোন টিমে','আরাফাত কোন টিমে'], section:'positions',
     answer: "প্রতি দলে ৫ জন মূল খেলোয়াড় + ১ জন অতিরিক্ত (বাধ্যতামূলক) — মোট ৬ জনের স্কোয়াড। নির্দিষ্ট খেলোয়াড় কোন টিমে আছে তা দেখতে Teams সেকশনটি চেক করো।" },
@@ -2065,29 +2064,16 @@ const FUTYF_KB = [
 ];
 
 /* ---------------------------------------------------------------------
-   2) API CALL TO HUGGING FACE OPEN SOURCE MODEL
+   2) UNAUTHENTICATED API CALL TO HUGGING FACE INFERENCE API
    --------------------------------------------------------------------- */
 async function queryHuggingFaceAPI(userPrompt) {
-  if (!HF_API_TOKEN || HF_API_TOKEN === "YOUR_HUGGINGFACE_API_TOKEN_HERE") {
-    return null; // Fallback if no token is provided yet
-  }
-
-  // Context injection so the AI knows about the tournament details
-  const contextPrompt = `[INST] You are FutYF AI, a helpful assistant for KUYF Football Tournament in Bangladesh. 
-Tournament Details: 
-- 5 Teams: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC.
-- Entry fee: 800 BDT per team.
-- Match format: 20+20 minutes group stage.
-- Organizers: Maruf, Tipu, Emon.
-Answer the user's question accurately in Bengali language. If you don't know, keep it friendly.
-
+  const contextPrompt = `[INST] You are FutYF AI, a helpful assistant for KUYF Football Tournament. Answer accurately in Bengali.
 User Question: ${userPrompt} [/INST]`;
 
   try {
     const response = await fetch(HF_MODEL_URL, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${HF_API_TOKEN}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -2099,7 +2085,6 @@ User Question: ${userPrompt} [/INST]`;
     const result = await response.json();
     if (result && Array.isArray(result) && result[0]?.generated_text) {
       let rawText = result[0].generated_text;
-      // Clean up instruction tags if model echoes them
       let cleaned = rawText.replace(contextPrompt, "").trim();
       if (cleaned.includes("[/INST]")) {
         cleaned = cleaned.split("[/INST]").pop().trim();
@@ -2107,7 +2092,7 @@ User Question: ${userPrompt} [/INST]`;
       return cleaned || null;
     }
   } catch (err) {
-    console.error("HF API Error:", err);
+    console.error("HF Public API Error:", err);
   }
   return null;
 }
@@ -2118,7 +2103,7 @@ User Question: ${userPrompt} [/INST]`;
 async function futyfAnswer(query) {
   const q = query.toLowerCase().trim();
 
-  // Step 1: Check Live DOM Data (Standings, Scorers, Fixtures)
+  // Step 1: Check Live DOM Data
   let liveBest = null, liveBestScore = 0;
   FUTYF_LIVE_INTENTS.forEach(item => {
     let score = 0;
@@ -2141,7 +2126,7 @@ async function futyfAnswer(query) {
     return { text: best.answer, section: best.section };
   }
 
-  // Step 3: Fallback to Free Open-Source Hugging Face API for smart generative answers
+  // Step 3: Fallback to Public Open-Source API
   const apiResponse = await queryHuggingFaceAPI(query);
   if (apiResponse) {
     return { text: apiResponse, section: null };
