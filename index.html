@@ -1906,7 +1906,7 @@ function closeNav() {
 }
 </script>
 
-<!-- ===================== FutYF Chat Assistant ===================== -->
+<!-- ===================== FutYF AI Chat Assistant (Powered by Hugging Face Open Source API) ===================== -->
 <button class="futyf-toggle" id="futyfToggle" aria-label="Chat with FutYF" onclick="futyfOpen()" style="left: 20px; right: auto; border-radius: 50% 50% 50% 10px;">
   ⚽ AI
   <span class="futyf-dot"></span>
@@ -1916,8 +1916,8 @@ function closeNav() {
   <div class="futyf-header">
     <div class="futyf-avatar">⚽</div>
     <div>
-      <div class="futyf-title">FutYF AI</div>
-      <div class="futyf-status">Online · Tournament Assistant</div>
+      <div class="futyf-title">FutYF AI (Smart Assistant)</div>
+      <div class="futyf-status">Online · Open Source LLM</div>
     </div>
     <button class="futyf-close" aria-label="Close chat" onclick="futyfClose()">×</button>
   </div>
@@ -1932,20 +1932,23 @@ function closeNav() {
   </div>
 
   <div class="futyf-input-row">
-    <input type="text" class="futyf-input" id="futyfInput" placeholder="প্রশ্ন লিখো... (e.g. ফি কত?)" onkeydown="if(event.key==='Enter') futyfSend()">
+    <input type="text" class="futyf-input" id="futyfInput" placeholder="যেকোনো প্রশ্ন করুন... (e.g. ফি কত?)" onkeydown="if(event.key==='Enter') futyfSend()">
     <button class="futyf-send" aria-label="Send" onclick="futyfSend()">➤</button>
   </div>
 </div>
 
 <script>
 /* ==========================================================================
-   FutYF — local, rule-based tournament assistant with section-redirect.
+   FutYF AI — Hugging Face Open Source API Integration + Local Fallback
    ========================================================================== */
 
-const FUTYF_GREETING = "হাই! আমি FutYF ⚽ — KUYF Football Tournament নিয়ে যা জানতে চাও জিজ্ঞেস করো, উত্তরের সাথে সরাসরি সেই সেকশনেও নিয়ে যাব।";
-const FUTYF_FALLBACK = { text: "এই প্রশ্নটা আমার কাছে ঠিক পরিষ্কার না! নিচের বাটনগুলো থেকে খুঁজে দেখো, নাহলে কমিটিকে সরাসরি জিজ্ঞেস করতে পারো। 😊", section: null };
+const FUTYF_GREETING = "হাই! আমি FutYF AI ⚽ — KUYF Football Tournament-এর ওপেন-সোর্স এআই সহকারী। টুর্নামেন্ট সম্পর্কে যা জানতে চাও জিজ্ঞেস করো!";
 
-// Section-id -> human label shown on the jump button
+// ⚠️ IMPORTANT: Get a free token from https://huggingface.co/settings/tokens and paste it here
+const HF_API_TOKEN = "YOUR_HUGGINGFACE_API_TOKEN_HERE"; 
+const HF_MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+
+// Section-id mappings for quick buttons
 const FUTYF_SECTION_LABELS = {
   structure: 'Structure সেকশনে যাও',
   format: 'Format সেকশনে যাও',
@@ -1960,7 +1963,7 @@ const FUTYF_SECTION_LABELS = {
 };
 
 /* ---------------------------------------------------------------------
-   1) LIVE-DATA INTENTS — read straight from the DOM tables
+   1) LOCAL LIVE DATA & HARDCODED KB (Fallback & Exact Matcher)
    --------------------------------------------------------------------- */
 const FUTYF_LIVE_INTENTS = [
   { keywords: ['টপে','এগিয়ে','লিড','লিডার','শীর্ষে','who is leading','top of the table','current leader','প্রথম স্থানে'],
@@ -2034,109 +2037,122 @@ function futyfLiveFullStandings(){
   return `বর্তমান পয়েন্ট টেবিল:\n${lines.join('\n')}`;
 }
 
-/* ---------------------------------------------------------------------
-   2) STATIC KB — including all custom newly requested Q&As
-   --------------------------------------------------------------------- */
-// Fixed and Refined FUTYF_KB and Strict Matching logic to resolve wrong answers and misalignments
 const FUTYF_KB = [
   { keywords:['তুমি কে','কে তুমি','who are you','তোমার পরিচয়'], section:'awards',
     answer: "আমি FutYF ⚽ — KUYF Football Tournament-এর এআই সহকারী। টুর্নামেন্ট সম্পর্কিত যেকোনো তথ্য জানতে আমাকে জিজ্ঞেস করতে পারো!" },
-
   { keywords:['kuyf','কূয়ফ','kazi bari','কাজী বাড়ী','KUYF কারা'], section:'awards',
     answer: "এটি আহম্মদ উল্লাহ কাজী বাড়ীর তরুণদের একটি Active সংগঠন যা বাড়ির সবার জন্য ইফতার মাহফিল, ট্যুর ও খেলাধুলার আয়োজন করে থাকে। বিস্তারিত জানতে তাদের অফিসিয়াল পেইজ ভিজিট করতে পারো: https://www.facebook.com/profile.php?id=61592336627028" },
-
   { keywords:['fee','ফি','রেজিস্ট্রেশন ফি','কত টাকা','entry fee','দল ফি','team fee'], section:'fees',
     answer: "টিম রেজিস্ট্রেশন ফি ৳৮০০ প্রতি দল (৫টি দল অংশগ্রহণ করছে বলে)। আগামী ম্যাচের আগে ১০০% ফি পরিশোধ করতে হবে।" },
-
   { keywords:['payment','পেমেন্ট','বিকাশ','নগদ','bkash','nagad','পেমেন্ট ফর্ম','কিভাবে পাঠাবো'], section:'fees',
     answer: "পেমেন্ট ফর্মের লিংক Fees সেকশনে দেওয়া আছে — ওখান দিয়ে পেমেন্ট সম্পন্ন করে ফেলো।" },
-
   { keywords:['fine','জরিমানা','কার্ড জরিমানা','কার কত টাকা ফাইন বাকী','কে কে কার্ড খেয়েছে'], section:'fees',
     answer: "হলুদ কার্ডের জরিমানা ৫০ টাকা আর লাল কার্ডের জরিমানা ১০০ টাকা। বর্তমান কার্ডপ্রাপ্ত খেলোয়াড়দের তালিকা ও জরিমানার বিস্তারিত Fees সেকশনে দেখতে পারো।" },
-
   { keywords:['committee','কমিটি','কমিতি','komiti','অভিযোগ','রেফারি','কে কমিটি'], section:'rules',
     answer: "রেফারির সিদ্ধান্তই চূড়ান্ত। অভিযোগ থাকলে ম্যাচ শেষের ১৫ মিনিটের মধ্যে জানাতে হবে। কমিটির দায়িত্বে আছেন মারুফ, টিপু আর ইমন, সাথে বাকিরা সহায়তা করছেন।" },
-
   { keywords:['squad','স্কোয়াড','খেলোয়াড় সংখ্যা','অতিরিক্ত খেলোয়াড়','কয়জন খেলবে','মুমিন কোন টিমে','রুহান কোন টিমে','ফয়সাল কোন টিমে','আরাফাত কোন টিমে'], section:'positions',
     answer: "প্রতি দলে ৫ জন মূল খেলোয়াড় + ১ জন অতিরিক্ত (বাধ্যতামূলক) — মোট ৬ জনের স্কোয়াড। নির্দিষ্ট খেলোয়াড় কোন টিমে আছে তা দেখতে Teams সেকশনটি চেক করো।" },
-
-  { keywords:['substitution','পরিবর্তন','খেলোয়াড় পরিবর্তন'], section:'scoring',
-    answer: "ম্যাচ চলাকালীন সর্বোচ্চ ১ জন খেলোয়াড় পরিবর্তনের অনুমতি আছে।" },
-
   { keywords:['minute','সময়','মিনিট','ম্যাচ ফরম্যাট','কতক্ষণ','হাফ','বিরতি','ফরম্যাট কী'], section:'scoring',
     answer: "গ্রুপ পর্বের ম্যাচ ২০+২০ = ৪০ মিনিটের, মাঝে ৫ মিনিট বিরতি। ফাইনালে ২০+২০ + অতিরিক্ত ১০ মিনিট (ET), তারপরও সমতা থাকলে ৩টি পেনাল্টি।" },
-
-  { keywords:['ফরম্যাট','পয়েন্ট সিস্টেম','win points','draw','ড্র নিয়ম','গোল পার্থক্য','কে কার সাথে খেলবে'], section:'structure',
-    answer: "প্রতি টিম প্রতি টিমের সাথে এক ম্যাচ করে খেলবে (রাউন্ড-রবিন) এবং পয়েন্ট টেবিলের টপ ২ দল ফাইনাল খেলবে।" },
-
   { keywords:['card','কার্ড','yellow','red','হলুদ','লাল','foul','ফাউল','রুলস কী'], section:'scoring',
     answer: "হলুদ কার্ডে ৫ মিনিট মাঠের বাইরে, লাল কার্ডে বাকি ম্যাচের জন্য বাইরে ও ১০০ টাকা জরিমানা। ২টা হলুদ কার্ড = পরের ম্যাচে নিষেধাজ্ঞা।" },
-
-  { keywords:['structure','গ্রুপ পর্ব','round robin','রাউন্ড রবিন','কাঠামো'], section:'structure',
-    answer: "৫টা দল রাউন্ড-রবিন গ্রুপ পর্বে খেলবে (১০টা ম্যাচ), এরপর টপ ২ দল ফাইনালে উঠবে।" },
-
   { keywords:['schedule','fixture','ফিক্সচার','সময়সূচী','কবে','ম্যাচ ডে','ফাইনাল কখন হবে','ফাইনাল কখন'], section:'Fixture',
     answer: "পূর্ণাঙ্গ সময়সূচী নিচে দেওয়া আছে — প্রতিটা ম্যাচের নম্বর, দল আর তারিখ-সময়সহ।" },
-
-  { keywords:['jersey','jersy','জার্সি','kit','পোশাক','শর্টস'], section:'rules',
-    answer: "প্রতিটি দল নিজের বাজেটে জার্সি ঠিক করবে, তবে টিমের সবার জার্সি হুবহু একইরকম হতে হবে। মাঠে শর্টস/ফুল ট্রাউজার বাধ্যতামূলক।" },
-
-  { keywords:['venue','মাঠ','সমুদ্রপাড়','turf','টার্ফ'], section:'format',
-    answer: "গ্রুপ পর্বের ম্যাচ সমুদ্রপাড়ের মাঠে হবে, ফাইনাল বাজেট অনুযায়ী টার্ফে।" },
-
-  { keywords:['register','রেজিস্ট্রেশন','draft','ড্রাফট'], section:'timeline',
-    answer: "প্লেয়ার ড্রাফট হয়ে গেছে ২৪ জুন, ২০২৬-এ। বাকি সময়সূচী নিচে দেওয়া আছে।" },
-
   { keywords:['award','পুরস্কার','trophy','ট্রফি','চ্যাম্পিয়ন','রানার আপ','ফাইনালে কে যাবে','কারা ফাইনাল খেলবে','কারা ফাইনাল খেল্বে','কারা চ্যাম্পিয়ন হবে'], section:'awards',
     answer: "পয়েন্ট টেবিলের শীর্ষে থাকা শীর্ষ দুই দল ফাইনালে মুখোমুখি হবে। চ্যাম্পিয়ন আর রানার-আপ দল ট্রফি পাবে এবং একজন পাবেন Tournament Best Player পুরস্কার।" },
-
   { keywords:['team name','দলগুলো','কয়টা দল','কোন দল','কয়টি টিম','টুম','টিম'], section:'positions',
-    answer: "৫টি দল খেলছে: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC — স্কোয়াড লিস্ট নিচে দেখো।" },
-
-  { keywords:['weather','আবহাওয়া','বৃষ্টি','স্থগিত'], section:'scoring',
-    answer: "আবহাওয়া বা জরুরি কারণে ম্যাচ স্থগিত হলে নতুন সময়সূচি ঘোষণা করা হবে।" }
+    answer: "৫টি দল খেলছে: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC — স্কোয়াড লিস্ট নিচে দেখো।" }
 ];
 
 /* ---------------------------------------------------------------------
-   3) FUZZY WORD-LEVEL SCORING
+   2) API CALL TO HUGGING FACE OPEN SOURCE MODEL
    --------------------------------------------------------------------- */
-function futyfScore(query, keywords){
-  let score = 0;
-  keywords.forEach(kw => {
-    const words = kw.toLowerCase().split(/\s+/).filter(Boolean);
-    let matched = 0;
-    words.forEach(w => { if (query.includes(w)) matched++; });
-    if (matched === words.length && words.length > 0) score += words.length;
-    else score += matched * 0.5;
-  });
-  return score;
+async function queryHuggingFaceAPI(userPrompt) {
+  if (!HF_API_TOKEN || HF_API_TOKEN === "YOUR_HUGGINGFACE_API_TOKEN_HERE") {
+    return null; // Fallback if no token is provided yet
+  }
+
+  // Context injection so the AI knows about the tournament details
+  const contextPrompt = `[INST] You are FutYF AI, a helpful assistant for KUYF Football Tournament in Bangladesh. 
+Tournament Details: 
+- 5 Teams: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC.
+- Entry fee: 800 BDT per team.
+- Match format: 20+20 minutes group stage.
+- Organizers: Maruf, Tipu, Emon.
+Answer the user's question accurately in Bengali language. If you don't know, keep it friendly.
+
+User Question: ${userPrompt} [/INST]`;
+
+  try {
+    const response = await fetch(HF_MODEL_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${HF_API_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        inputs: contextPrompt,
+        parameters: { max_new_tokens: 150, temperature: 0.3 }
+      })
+    });
+
+    const result = await response.json();
+    if (result && Array.isArray(result) && result[0]?.generated_text) {
+      let rawText = result[0].generated_text;
+      // Clean up instruction tags if model echoes them
+      let cleaned = rawText.replace(contextPrompt, "").trim();
+      if (cleaned.includes("[/INST]")) {
+        cleaned = cleaned.split("[/INST]").pop().trim();
+      }
+      return cleaned || null;
+    }
+  } catch (err) {
+    console.error("HF API Error:", err);
+  }
+  return null;
 }
 
-function futyfAnswer(query){
+/* ---------------------------------------------------------------------
+   3) SMART HYBRID ROUTER
+   --------------------------------------------------------------------- */
+async function futyfAnswer(query) {
   const q = query.toLowerCase().trim();
 
+  // Step 1: Check Live DOM Data (Standings, Scorers, Fixtures)
   let liveBest = null, liveBestScore = 0;
   FUTYF_LIVE_INTENTS.forEach(item => {
-    const s = futyfScore(q, item.keywords);
-    if (s > liveBestScore) { liveBestScore = s; liveBest = item; }
+    let score = 0;
+    item.keywords.forEach(kw => { if (q.includes(kw)) score++; });
+    if (score > liveBestScore) { liveBestScore = score; liveBest = item; }
   });
   if (liveBest && liveBestScore > 0) {
     const text = liveBest.handler();
     if (text) return { text, section: liveBest.section };
   }
 
+  // Step 2: Check Static Accurate Rule-based KB
   let best = null, bestScore = 0;
   FUTYF_KB.forEach(item => {
-    const s = futyfScore(q, item.keywords);
-    if (s > bestScore) { bestScore = s; best = item; }
+    let score = 0;
+    item.keywords.forEach(kw => { if (q.includes(kw)) score++; });
+    if (score > bestScore) { bestScore = score; best = item; }
   });
-  if (best && bestScore >= 0.5) return { text: best.answer, section: best.section };
+  if (best && bestScore > 0) {
+    return { text: best.answer, section: best.section };
+  }
 
-  return FUTYF_FALLBACK;
+  // Step 3: Fallback to Free Open-Source Hugging Face API for smart generative answers
+  const apiResponse = await queryHuggingFaceAPI(query);
+  if (apiResponse) {
+    return { text: apiResponse, section: null };
+  }
+
+  // Step 4: Final Fallback
+  return { text: "এই প্রশ্নটা আমার কাছে ঠিক পরিষ্কার না! নিচের বাটনগুলো থেকে খুঁজে দেখো, নাহলে কমিটিকে সরাসরি জিজ্ঞেস করতে পারো। 😊", section: null };
 }
 
 /* ---------------------------------------------------------------------
-   4) Section jump + highlight
+   4) UI CONTROLS
    --------------------------------------------------------------------- */
 function futyfScroll(sectionId){
   const el = document.getElementById(sectionId);
@@ -2151,9 +2167,6 @@ function futyfScroll(sectionId){
   }, 150);
 }
 
-/* ---------------------------------------------------------------------
-   5) UI plumbing
-   --------------------------------------------------------------------- */
 function futyfAppend(role, text, sectionId){
   const box = document.getElementById('futyfMessages');
   const msg = document.createElement('div');
@@ -2176,7 +2189,7 @@ function futyfAppend(role, text, sectionId){
   box.scrollTop = box.scrollHeight;
 }
 
-function futyfReply(query){
+async function futyfReply(query){
   const box = document.getElementById('futyfMessages');
   const typing = document.createElement('div');
   typing.className = 'futyf-typing';
@@ -2184,11 +2197,9 @@ function futyfReply(query){
   box.appendChild(typing);
   box.scrollTop = box.scrollHeight;
 
-  setTimeout(() => {
-    typing.remove();
-    const { text, section } = futyfAnswer(query);
-    futyfAppend('bot', text, section);
-  }, 300);
+  const { text, section } = await futyfAnswer(query);
+  typing.remove();
+  futyfAppend('bot', text, section);
 }
 
 function futyfSend(){
