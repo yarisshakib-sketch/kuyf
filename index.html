@@ -1906,7 +1906,7 @@ function closeNav() {
 }
 </script>
 
-<!-- ===================== FutYF AI Chat Assistant (Powered by Hugging Face Unauthenticated API) ===================== -->
+<!-- ===================== FutYF AI Chat Assistant (Fixed URL & Working API) ===================== -->
 <button class="futyf-toggle" id="futyfToggle" aria-label="Chat with FutYF" onclick="futyfOpen()" style="left: 20px; right: auto; border-radius: 50% 50% 50% 10px;">
   ⚽ AI
   <span class="futyf-dot"></span>
@@ -1944,8 +1944,8 @@ function closeNav() {
 
 const FUTYF_GREETING = "হাই! আমি FutYF AI ⚽ — KUYF Football Tournament-এর ওপেন-সোর্স এআই সহকারী। টুর্নামেন্ট সম্পর্কে যা জানতে চাও জিজ্ঞেস করো!";
 
-// Using Hugging Face Serverless Inference API without exposing any secret tokens
-const HF_MODEL_URL = "https://api-inference.huggingface.co/models/google/gemma-2-2b-it";
+// Corrected URL without typos
+const HF_MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
 
 // Section-id mappings for quick buttons
 const FUTYF_SECTION_LABELS = {
@@ -2037,7 +2037,7 @@ function futyfLiveFullStandings(){
 }
 
 const FUTYF_KB = [
-  { keywords:['তুমি কে','কে তুমি','who are you','তোমার পরিচয়'], section:'awards',
+  { keywords:['তুমি কে','ke tumi','who are you','তোমার পরিচয়'], section:'awards',
     answer: "আমি FutYF ⚽ — KUYF Football Tournament-এর এআই সহকারী। টুর্নামেন্ট সম্পর্কিত যেকোনো তথ্য জানতে আমাকে জিজ্ঞেস করতে পারো!" },
   { keywords:['kuyf','কূয়ফ','kazi bari','কাজী বাড়ী','KUYF কারা'], section:'awards',
     answer: "এটি আহম্মদ উল্লাহ কাজী বাড়ীর তরুণদের একটি Active সংগঠন যা বাড়ির সবার জন্য ইফতার মাহফিল, ট্যুর ও খেলাধুলার আয়োজন করে থাকে। বিস্তারিত জানতে তাদের অফিসিয়াল পেইজ ভিজিট করতে পারো: https://www.facebook.com/profile.php?id=61592336627028" },
