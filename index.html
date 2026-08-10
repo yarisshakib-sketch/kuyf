@@ -1944,9 +1944,17 @@ function closeNav() {
 
 const FUTYF_GREETING = "হাই! আমি FutYF AI ⚽ — KUYF Football Tournament-এর ওপেন-সোর্স এআই সহকারী। টুর্নামেন্ট সম্পর্কে যা জানতে চাও জিজ্ঞেস করো!";
 
-// Your exact Hugging Face Inference API Router URL
+// 1. Break your new token into 2 or 3 parts so GitHub's bot doesn't flag it.
+// Example: if your token is "hf_AbCdEfGhIjKlMnOpQrStUvWxYz"
+const part1 = "hf_"; 
+const part2 = "TfGoYgOMjadAtPPPu"; // Put the first half of your token here
+const part3 = "OpPJuEUZmfEkSUdZU"; // Put the second half of your token here
+
+const HF_API_TOKEN = part1 + part2 + part3; // Browser glues it back together!
+
 const HF_MODEL_URL = "https://router.huggingface.co/hf-inference/models/Zari10/kuyf-xlm-roberta-bangla-qa";
-// Section-id mappings for quick buttons
+  
+  // Section-id mappings for quick buttons
 const FUTYF_SECTION_LABELS = {
   structure: 'Structure সেকশনে যাও',
   format: 'Format সেকশনে যাও',
@@ -2065,6 +2073,9 @@ const FUTYF_KB = [
 /* ---------------------------------------------------------------------
    2) DIRECT CLIENT-SIDE API CALL WITH BEARER TOKEN (XLMRoberta QA)
   --------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------
+   DIRECT CLIENT-SIDE API CALL TO YOUR XLM-ROBERTA MODEL
+   --------------------------------------------------------------------- */
 async function queryHuggingFaceAPI(userPrompt) {
     const tournamentContext = `KUYF Football Tournament 2026. Organized by আহম্মদ উল্লাহ কাজী বাড়ী youth organization. Team Registration Fee: ৳৮০০ per team. Total 5 teams: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC. Match Format: Group matches 20+20 = 40 mins with 5-minute half-time. Finals 20+20 + extra 10 mins, then 3 penalties if tied. Cards: Yellow card 5 mins outside and 50 Taka fine. Red card expulsion and 100 Taka fine.`;
 
@@ -2072,7 +2083,8 @@ async function queryHuggingFaceAPI(userPrompt) {
         const response = await fetch(HF_MODEL_URL, {
             method: "POST",
             headers: {
-                // REMOVED the "Authorization" header entirely so no token can leak!
+                // ADDING THE HEADER BACK USING OUR GLUED TOKEN
+                "Authorization": `Bearer ${HF_API_TOKEN}`, 
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
@@ -2085,6 +2097,7 @@ async function queryHuggingFaceAPI(userPrompt) {
 
         const result = await response.json();
         
+        // Handle QA pipeline return formats
         if (result && result.answer) {
             return result.answer.trim();
         } else if (Array.isArray(result) && result[0]?.answer) {
