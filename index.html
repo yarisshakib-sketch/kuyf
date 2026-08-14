@@ -1714,25 +1714,25 @@ setInterval(loadStandings, 3000);
       </p>
     </div>
   </div>
+
 <!-- Top Leaderboard Section -->
   <div style="margin-top: 60px; max-width: 900px; margin-left: auto; margin-right: auto;">
     <div class="eyebrow" style="text-align: center;">Performance Rankings</div>
     <h2 class="section-title reveal" style="text-align: center;">টপ খেলোয়াড় ও গোলদাতা তালিকা</h2>
 
-    <!-- Tabs Control or Side-by-Side Tables Container -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
       
-      <!-- Table 1: Top 5 Overall Players (Weighted Formula) -->
+      <!-- Table 1: Top Best Players -->
       <div class="card reveal" style="background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: var(--radius); padding: 20px;">
         <h3 style="color: var(--gold); font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin-bottom: 15px; text-align: center;">⭐ Top Best Players</h3>
-        <p style="font-size: 0.85rem; color: var(--ink-dim); text-align: center; margin-bottom: 15px;">POTM (40%) + Assist (20%) + Saves (20%) + Goal (20%)</p>
+        <p style="font-size: 0.8rem; color: var(--ink-dim); text-align: center; margin-bottom: 15px;">POTM (40%) + Ast (20%) + Sav (20%) + Gls (20%)</p>
         <div style="overflow-x: auto;">
           <table style="width: 100%; border-collapse: collapse; color: #fff; text-align: center; font-size: 0.9rem;">
             <thead>
               <tr style="background: rgba(255, 215, 0, 0.1); color: var(--gold); font-family: 'Orbitron', sans-serif;">
                 <th style="padding: 10px; border-bottom: 1px solid var(--border-glow);">Pos</th>
                 <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--border-glow);">Player</th>
-                <th style="padding: 10px; border-bottom: 1px solid var(--border-glow);" title="Man of the Match">POTM</th>
+                <th style="padding: 10px; border-bottom: 1px solid var(--border-glow);">POTM</th>
                 <th style="padding: 10px; border-bottom: 1px solid var(--border-glow);">Ast</th>
                 <th style="padding: 10px; border-bottom: 1px solid var(--border-glow);">Sav</th>
                 <th style="padding: 10px; border-bottom: 1px solid var(--border-glow);">Gls</th>
@@ -1740,16 +1740,16 @@ setInterval(loadStandings, 3000);
               </tr>
             </thead>
             <tbody id="best-players-body">
-              <!-- Injected via JS -->
+              <tr><td colspan="7" style="padding: 15px; color: var(--ink-dim);">Loading data...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Table 2: Top 5 Goal Scorers -->
+      <!-- Table 2: Top Goal Scorers -->
       <div class="card reveal" style="background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: var(--radius); padding: 20px;">
         <h3 style="color: var(--neon-green); font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin-bottom: 15px; text-align: center;">⚽ Top Goal Scorers</h3>
-        <p style="font-size: 0.85rem; color: var(--ink-dim); text-align: center; margin-bottom: 15px;">সর্বোচ্চ গোল, ম্যাচ ভিত্তিতে</p>
+        <p style="font-size: 0.8rem; color: var(--ink-dim); text-align: center; margin-bottom: 15px;">সর্বোচ্চ গোল, ম্যাচ ভিত্তিতে</p>
         <div style="overflow-x: auto;">
           <table style="width: 100%; border-collapse: collapse; color: #fff; text-align: center; font-size: 0.9rem;">
             <thead>
@@ -1761,7 +1761,7 @@ setInterval(loadStandings, 3000);
               </tr>
             </thead>
             <tbody id="top-scorers-body">
-              <!-- Injected via JS -->
+              <tr><td colspan="4" style="padding: 15px; color: var(--ink-dim);">Loading data...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1770,12 +1770,101 @@ setInterval(loadStandings, 3000);
     </div>
   </div>
 
-  <div style="margin-top: 50px;">
+  <div style="margin-top: 50px; text-align: center;">
     <h2>Ready to Play?</h2>
-    <strong><p> <a href="#Fixture" onclick="closeNav()">Click to See the Fixture</a></p></strong>
+    <strong><p><a href="#Fixture" onclick="closeNav()">Click to See the Fixture</a></p></strong>
   </div>
 </section>
 
+<!-- Robust JSON Fetch & Render Script -->
+<script>
+async function loadPlayerLeaderboards() {
+  try {
+    const response = await fetch('./players.json?v=' + Date.now());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    let players = await response.json();
+
+    if (!Array.isArray(players) || players.length === 0) {
+      console.warn("players.json is empty or invalid format.");
+      return;
+    }
+
+    // 1. Calculate Weighted Score
+    players.forEach(p => {
+      p.score = (Number(p.potm || 0) * 0.4) + 
+                (Number(p.assists || 0) * 0.2) + 
+                (Number(p.saves || 0) * 0.2) + 
+                (Number(p.goals || 0) * 0.2);
+    });
+
+    // Sort Best Players
+    let bestPlayers = [...players].sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.potm !== a.potm) return b.potm - a.potm;
+      return b.goals - a.goals;
+    }).slice(0, 5);
+
+    // Sort Top Scorers
+    let topScorers = [...players].sort((a, b) => {
+      if (b.goals !== a.goals) return b.goals - a.goals;
+      return b.assists - a.assists;
+    }).slice(0, 5);
+
+    // Render Best Players Table
+    const bestBody = document.getElementById('best-players-body');
+    bestBody.innerHTML = '';
+    bestPlayers.forEach((p, index) => {
+      let rank = index + 1;
+      let badge = (rank === 1) ? '👑 ' : '';
+      const row = document.createElement('tr');
+      row.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      if (rank === 1) row.style.background = 'rgba(255, 215, 0, 0.05)';
+
+      row.innerHTML = `
+        <td style="padding: 10px; font-weight: bold; color: var(--gold);">${badge}${rank}</td>
+        <td style="padding: 10px; text-align: left;">
+          <div style="font-weight: 500; color: #fff;">${p.name}</div>
+          <div style="font-size: 0.75rem; color: var(--ink-dim);">${p.team}</div>
+        </td>
+        <td style="padding: 10px; color: var(--neon-cyan);">${p.potm || 0}</td>
+        <td style="padding: 10px;">${p.assists || 0}</td>
+        <td style="padding: 10px;">${p.saves || 0}</td>
+        <td style="padding: 10px;">${p.goals || 0}</td>
+        <td style="padding: 10px; font-weight: bold; color: var(--neon-green);">${p.score.toFixed(1)}</td>
+      `;
+      bestBody.appendChild(row);
+    });
+
+    // Render Top Scorers Table
+    const scorersBody = document.getElementById('top-scorers-body');
+    scorersBody.innerHTML = '';
+    topScorers.forEach((p, index) => {
+      let rank = index + 1;
+      let badge = (rank === 1) ? '⚽ ' : '';
+      const row = document.createElement('tr');
+      row.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      if (rank === 1) row.style.background = 'rgba(56, 255, 138, 0.04)';
+
+      row.innerHTML = `
+        <td style="padding: 10px; font-weight: bold; color: var(--neon-green);">${badge}${rank}</td>
+        <td style="padding: 10px; text-align: left; font-weight: 500; color: #fff;">${p.name}</td>
+        <td style="padding: 10px; text-align: left; color: var(--ink-dim); font-size: 0.85rem;">${p.team}</td>
+        <td style="padding: 10px; font-weight: bold; color: var(--gold);">${p.goals || 0}</td>
+      `;
+      scorersBody.appendChild(row);
+    });
+
+  } catch (error) {
+    console.error('Leaderboard load error:', error);
+    document.getElementById('best-players-body').innerHTML = `<tr><td colspan="7" style="padding: 15px; color: #ff5555;">Failed to load players.json (Run via local server)</td></tr>`;
+    document.getElementById('top-scorers-body').innerHTML = `<tr><td colspan="4" style="padding: 15px; color: #ff5555;">Failed to load players.json</td></tr>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadPlayerLeaderboards);
+setInterval(loadPlayerLeaderboards, 3000);
+</script>
+</section>
 <!-- Script to handle Live Leaderboards from players.json -->
 <script>
 async function loadPlayerLeaderboards() {
