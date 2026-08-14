@@ -2014,11 +2014,16 @@ function closeNav() {
 
   <div class="futyf-messages" id="futyfMessages"></div>
 
-  <div class="futyf-suggestions" id="futyfSuggestions">
+<div class="futyf-suggestions" id="futyfSuggestions">
     <span class="futyf-chip" onclick="futyfAsk('কে টপে আছে?')">লিড টেবিল</span>
-    <span class="futyf-chip" onclick="futyfAsk('রেজিস্ট্রেশন ফি কত?')">রেজিস্ট্রেশন ফি</span>
-    <span class="futyf-chip" onclick="futyfAsk('ম্যাচের সময় কত মিনিট?')">ম্যাচ ফরম্যাট</span>
+    <span class="futyf-chip" onclick="futyfAsk('No Mercy! কী ফাইনাল খেলবে?')">No Mercy সম্ভাবনা</span>
+    <span class="futyf-chip" onclick="futyfAsk('Pioneers FC কী ফাইনাল খেলবে?')">Pioneers সম্ভাবনা</span>
+    <span class="futyf-chip" onclick="futyfAsk('United Kings FC কী ফাইনাল খেলবে?')">United Kings সম্ভাবনা</span>
+    <span class="futyf-chip" onclick="futyfAsk('Titans FC কী ফাইনাল খেলবে?')">Titans সম্ভাবনা</span>
+    <span class="futyf-chip" onclick="futyfAsk('Legend United FC কী ফাইনাল খেলবে?')">Legend United সম্ভাবনা</span>
     <span class="futyf-chip" onclick="futyfAsk('পরবর্তী ম্যাচ কবে?')">পরবর্তী ম্যাচ</span>
+    <span class="futyf-chip" onclick="futyfAsk('Top Player')">Top Player</span> 
+    <span class="futyf-chip" onclick="futyfAsk('Top Scorer')">Top Scorer</span>
   </div>
 
   <div class="futyf-input-row">
@@ -2132,7 +2137,7 @@ function futyfLiveFullStandings(){
 }
 
 const FUTYF_KB = [
-  { keywords:['তুমি কে','ke tumi','who are you','তোমার পরিচয়','tumi ke','ke tumi'], section:'awards',
+  { keywords:['তুমি কে','ke tumi','who are you','তোমার পরিচয়','tumi ke'], section:'awards',
     answer: "আমি FutYF ⚽ — KUYF Football Tournament-এর এআই সহকারী। টুর্নামেন্ট সম্পর্কিত যেকোনো তথ্য জানতে আমাকে জিজ্ঞেস করতে পারো!" },
   { keywords:['kuyf','কূয়ফ','kazi bari','কাজী বাড়ী','KUYF কারা'], section:'awards',
     answer: "এটি আহম্মদ উল্লাহ কাজী বাড়ীর তরুণদের একটি Active সংগঠন যা বাড়ির সবার জন্য ইফতার মাহফিল, ট্যুর ও খেলাধুলার আয়োজন করে থাকে। বিস্তারিত জানতে তাদের অফিসিয়াল পেইজ ভিজিট করতে পারো: https://www.facebook.com/profile.php?id=61592336627028" },
@@ -2155,7 +2160,19 @@ const FUTYF_KB = [
   { keywords:['award','পুরস্কার','trophy','ট্রফি','চ্যাম্পিয়ন','রানার আপ','ফাইনালে কে যাবে','কারা ফাইনাল খেলবে','কারা ফাইনাল খেল্বে','কারা চ্যাম্পিয়ন হবে'], section:'awards',
     answer: "পয়েন্ট টেবিলের শীর্ষে থাকা শীর্ষ দুই দল ফাইনালে মুখোমুখি হবে। চ্যাম্পিয়ন আর রানার-আপ দল ট্রফি পাবে এবং একজন পাবেন Tournament Best Player পুরস্কার।" },
   { keywords:['team name','দলগুলো','কয়টা দল','কোন দল','কয়টি টিম','টুম','টিম'], section:'positions',
-    answer: "৫টি দল খেলছে: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC — স্কোয়াড লিস্ট নিচে দেখো।" }
+    answer: "৫টি দল খেলছে: United Kings, No Mercy!, Titans FC, Pioneers FC, Legend United FC — স্কোয়াড লিস্ট নিচে দেখো।" },
+  
+  // New Team Final Scenarios
+  { keywords:['no mercy', 'নো মার্সি', 'no mercy! কী ফাইনাল খেলবে'], section:'standings',
+    answer: "অনেকটা নিশ্চিত, তবে যদি No Mercy! পরবর্তী ম্যাচ বড় ব্যবধানে হারে ও United Kings এবং Pioneers FC দু দল ই জিতে আর No Mercy থেকে গোল ব্যবধানে এগিয়ে থাকে। শুধু তখনই তারা বাদ পড়বে, যেটা সাধারণত অসম্ভব এই বলা যায়।" },
+  { keywords:['pioneers', 'পায়োনিয়ার্স', 'pioneers fc কী ফাইনাল খেলবে'], section:'standings',
+    answer: "তারা পরবর্তী ২ ম্যাচ জিতলে তাদের পয়েন্ট হবে ৭, তখন সম্ভাবনা রয়েছে। একটি ড্র করে আরেকটি জিতলে ৫, সম্ভাবনা কম।" },
+  { keywords:['united kings', 'ইউনাইটেড কিংস', 'united kings fc কী ফাইনাল খেলবে'], section:'standings',
+    answer: "তারা পরবর্তী ম্যাচ জিতলে তাদের পয়েন্ট হবে ৭, তখন সম্ভাবনা রয়েছে। একটি ড্র করলে পয়েন্ট ৫, সম্ভাবনা কম।" },
+  { keywords:['titans', 'টাইটানস', 'titans fc কী ফাইনাল খেলবে'], section:'standings',
+    answer: "তারা পরবর্তী ম্যাচ বড় ব্যবধানে জিতলে তাদের পয়েন্ট হবে ৫, তখন সম্ভাবনা রয়েছে। একটি ড্র করলে পয়েন্ট হবে ৪, সম্ভাবনা অনেক কম।" },
+  { keywords:['legend united', 'লেজেন্ড ইউনাইটেড', 'legend united fc কী ফাইনাল খেলবে'], section:'standings',
+    answer: "তারা পরবর্তী ম্যাচ বড় জিতলে তাদের পয়েন্ট হবে ৬, তখন সম্ভাবনা রয়েছে। একটি ড্র করলে পয়েন্ট হবে ৪, সম্ভাবনা অনেক কম।" }
 ];
 
 /* ---------------------------------------------------------------------
