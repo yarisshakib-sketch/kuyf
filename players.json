@@ -4,6 +4,8 @@
   { "name": "Yusuf", "team": "Legend United FC", "goals": 0, "assists": 0, "saves": 0, "potm": 1 },
   { "name": "Sumon", "team": "Pioneers FC", "goals": 0, "assists": 0, "saves": 2, "potm": 1 },
   { "name": "Rakib", "team": "United Kings FC", "goals": 1, "assists": 0, "saves": 0, "potm": 1 },
+  { "name": "Gias-Uddin", "team": "Titans FC", "goals": 2, "assists": 0, "saves": 0, "potm": 1 },
+  { "name": "Rohan", "team": "Titans FC", "goals": 0, "assists": 3, "saves": 0, "potm": 0 },
   { "name": "Jahangir", "team": "Legend United FC", "goals": 2, "assists": 0, "saves": 0, "potm": 2 },
   { "name": "Forhad", "team": "Legend Unied FC", "goals": 0, "assists": 0, "saves": 0, "potm": 1 }
 ]
